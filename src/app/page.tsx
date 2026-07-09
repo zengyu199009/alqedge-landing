@@ -347,10 +347,10 @@ function FooterSection() {
           </div>
 
           <div className="flex items-center gap-6 text-sm">
-            <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors">
+            <a href="/privacy" className="text-gray-500 hover:text-gray-300 transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-gray-500 hover:text-gray-300 transition-colors">
+            <a href="/terms" className="text-gray-500 hover:text-gray-300 transition-colors">
               Terms of Service
             </a>
           </div>

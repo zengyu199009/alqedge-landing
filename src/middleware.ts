@@ -8,8 +8,12 @@ const US_ONLY = true;
 const US_COUNTRY_CODE = "US";
 
 export function middleware(request: NextRequest) {
-  // Skip middleware for the explain page itself to avoid redirect loops
-  if (request.nextUrl.pathname.startsWith("/explain")) {
+  // Skip middleware for legal and explain pages to avoid redirect loops
+  if (
+    request.nextUrl.pathname.startsWith("/explain") ||
+    request.nextUrl.pathname.startsWith("/terms") ||
+    request.nextUrl.pathname.startsWith("/privacy")
+  ) {
     return NextResponse.next();
   }
 
