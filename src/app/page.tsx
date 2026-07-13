@@ -56,8 +56,11 @@ function ParticlesBackground() {
     resize();
     window.addEventListener("resize", resize);
 
-    // Create particles
-    for (let i = 0; i < 50; i++) {
+    // Create particles — fewer on mobile for performance
+    const isMobile = window.innerWidth < 768;
+    const particleCount = isMobile ? 20 : 50;
+    particles = [];
+    for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
@@ -156,15 +159,15 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
 }
 
 // ─── Section 1: Hero ────────────────────────────────────────────────
-function HeroSection({ onJoinClick }: { onJoinClick: () => void }) {
+function HeroSection({ onJoinClick, emailRef }: { onJoinClick: () => void; emailRef: React.RefObject<HTMLInputElement | null> }) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2e] to-[#1a1a3e]">
       <ParticlesBackground />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
         <div className="animate-fade-in">
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium">
-            Coming July 28, 2026
+          <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm font-medium">
+            🎉 Early Access Now Open
           </div>
         </div>
 
@@ -175,7 +178,7 @@ function HeroSection({ onJoinClick }: { onJoinClick: () => void }) {
         </h1>
 
         <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          Real-time data. Multi-Agent collaboration. Personalized insights.
+          Real-time data. 3 AI Analysts working in parallel. Personalized insights.
           <br className="hidden sm:block" />
           Get a structured research report with SEC-sourced citations in{" "}
           <span className="text-indigo-300 font-semibold">3 minutes</span>.
@@ -197,6 +200,19 @@ function HeroSection({ onJoinClick }: { onJoinClick: () => void }) {
           </div>
         </div>
 
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+          <a href="/register">
+            <button className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-lg transition-all duration-200 active:scale-95 text-base">
+              Create Free Account
+            </button>
+          </a>
+          <a href="/analyze?sample=AAPL">
+            <button className="px-6 py-3 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-base">
+              See Sample Report
+            </button>
+          </a>
+        </div>
+
         <p className="mt-4 text-sm text-gray-500 animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
           No spam. Unsubscribe anytime.
         </p>
@@ -214,6 +230,7 @@ function HeroSection({ onJoinClick }: { onJoinClick: () => void }) {
 
 // ─── Section 2: Features ────────────────────────────────────────────
 function FeaturesSection() {
+  const featuresRef = useRef<HTMLElement>(null);
   const features = [
     {
       icon: <DataIcon />,
@@ -223,7 +240,7 @@ function FeaturesSection() {
     },
     {
       icon: <ChipIcon />,
-      title: "Multi-Agent Intelligence",
+      title: "3 AI Analysts",
       description:
         "Three AI agents analyze fundamentals, technicals, and news sentiment in parallel. A lead agent synthesizes a cohesive report — like a junior analyst team working for you.",
     },
@@ -236,7 +253,7 @@ function FeaturesSection() {
   ];
 
   return (
-    <section className="py-24 md:py-32 bg-[#0a0a1a] relative">
+    <section id="features" ref={featuresRef} className="py-24 md:py-32 bg-[#0a0a1a] relative">
       <div className="bg-gradient-radial absolute inset-0" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6">
@@ -293,7 +310,7 @@ function TrustSection() {
 }
 
 // ─── Section 4: CTA ─────────────────────────────────────────────────
-function CTASection({ onJoinClick }: { onJoinClick: () => void }) {
+function CTASection({ onJoinClick, emailRef }: { onJoinClick: () => void; emailRef: React.RefObject<HTMLInputElement | null> }) {
   return (
     <section className="py-24 md:py-32 bg-gradient-to-b from-[#0a0a1a] to-[#1a1a3e] relative overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30" />
@@ -305,7 +322,7 @@ function CTASection({ onJoinClick }: { onJoinClick: () => void }) {
           </div>
 
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="text-gradient">Launching July 28</span>
+            <span className="text-gradient">Early Access Now Open</span>
           </h2>
 
           <p className="text-xl text-gray-300 mb-4">
@@ -357,6 +374,12 @@ function FooterSection() {
         </div>
 
         <div className="mt-6 pt-6 border-t border-indigo-500/5 text-center">
+          <p className="text-gray-400 text-sm mb-3">
+            Contact:{" "}
+            <a href="mailto:support@alqedge.com" className="text-indigo-400 hover:text-indigo-300 transition-colors underline underline-offset-2">
+              support@alqedge.com
+            </a>
+          </p>
           <p className="text-amber-400/80 text-xs font-medium">
             ⚠️ AlphaSync only serves customers located in the United States.
           </p>
@@ -372,10 +395,12 @@ function FooterSection() {
 }
 
 // ─── Toast Notification ─────────────────────────────────────────────
-function Toast({ message, visible }: { message: string; visible: boolean }) {
+function Toast({ message, visible, type = "success" }: { message: string; visible: boolean; type?: "success" | "error" }) {
   return (
     <div
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 rounded-lg bg-emerald-600 text-white font-medium shadow-lg transition-all duration-500 ${
+      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 rounded-lg text-white font-medium shadow-lg transition-all duration-500 ${
+        type === "error" ? "bg-red-600" : "bg-emerald-600"
+      } ${
         visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
       }`}
     >
@@ -388,25 +413,63 @@ function Toast({ message, visible }: { message: string; visible: boolean }) {
 export default function Home() {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const heroEmailRef = useRef<HTMLInputElement>(null);
+  const ctaEmailRef = useRef<HTMLInputElement>(null);
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToastMessage(msg);
+    setToastType(type);
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 4000);
   };
 
-  const handleJoinClick = () => {
-    showToast("Thank you! We'll notify you on July 28.");
+  const handleJoinClick = async () => {
+    // Read email from whichever input triggered the call
+    const email =
+      heroEmailRef.current?.value || ctaEmailRef.current?.value || "";
+
+    if (!email || !email.includes("@")) {
+      showToast("Please enter a valid email address.", "error");
+      return;
+    }
+
+    const API_URL =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+
+    try {
+      const res = await fetch(`${API_URL}/waitlist`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "landing_page" }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        showToast("You're on the list! We'll email you on July 28.");
+        // Clear inputs on success
+        if (heroEmailRef.current) heroEmailRef.current.value = "";
+        if (ctaEmailRef.current) ctaEmailRef.current.value = "";
+      } else {
+        showToast(
+          data.message || "Something went wrong. Please try again.",
+          "error"
+        );
+      }
+    } catch {
+      showToast("Something went wrong. Please try again.", "error");
+    }
   };
 
   return (
     <main className="min-h-screen">
-      <HeroSection onJoinClick={handleJoinClick} />
+      <HeroSection onJoinClick={handleJoinClick} emailRef={heroEmailRef} />
       <FeaturesSection />
       <TrustSection />
-      <CTASection onJoinClick={handleJoinClick} />
+      <CTASection onJoinClick={handleJoinClick} emailRef={ctaEmailRef} />
       <FooterSection />
-      <Toast message={toastMessage} visible={toastVisible} />
+      <Toast message={toastMessage} visible={toastVisible} type={toastType} />
     </main>
   );
 }

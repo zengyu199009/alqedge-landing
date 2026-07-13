@@ -148,7 +148,7 @@ export default function TermsPage() {
                   <tr className="border-b border-indigo-500/10">
                     <td className="py-2 pr-4 text-white">Free</td>
                     <td className="py-2 pr-4">$0</td>
-                    <td className="py-2">3 stock analyses per 30-day rolling window</td>
+                    <td className="py-2">5 stock analyses per 30-day rolling window</td>
                   </tr>
                   <tr className="border-b border-indigo-500/10">
                     <td className="py-2 pr-4 text-white font-medium">Pro</td>

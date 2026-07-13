@@ -1,23 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { updateSession } from "@/lib/supabase/middleware";
 
 // US-only landing page middleware
-// Blocks non-US visitors with a redirect to /explain.html
+// Blocks non-US visitors with a redirect to /explain
 // Uses Vercel Edge / GeoIP headers
 
 const US_ONLY = true;
 const US_COUNTRY_CODE = "US";
 
-export function middleware(request: NextRequest) {
-  // Skip middleware for legal and explain pages to avoid redirect loops
-  if (
-    request.nextUrl.pathname.startsWith("/explain") ||
-    request.nextUrl.pathname.startsWith("/terms") ||
-    request.nextUrl.pathname.startsWith("/privacy")
-  ) {
-    return NextResponse.next();
-  }
-
-  // Skip static files
+export async function middleware(request: NextRequest) {
+  // Skip middleware for static files
   if (
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/favicon") ||
@@ -27,9 +19,20 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Handle Supabase auth session
+  const supabaseResponse = await updateSession(request);
+
+  // Skip GeoIP for legal and explain pages to avoid redirect loops
+  if (
+    request.nextUrl.pathname.startsWith("/explain") ||
+    request.nextUrl.pathname.startsWith("/terms") ||
+    request.nextUrl.pathname.startsWith("/privacy")
+  ) {
+    return supabaseResponse;
+  }
+
   if (US_ONLY) {
     // Vercel provides geo information via request headers
-    // cf-ipcountry is set by Cloudflare; Vercel uses x-vercel-ip-country
     const country =
       request.headers.get("x-vercel-ip-country") ||
       request.headers.get("cf-ipcountry") ||
@@ -40,12 +43,9 @@ export function middleware(request: NextRequest) {
       const url = new URL("/explain", request.url);
       return NextResponse.redirect(url);
     }
-
-    // For local development or when geo data isn't available,
-    // we allow access (will be handled by Cloudflare in production)
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {
