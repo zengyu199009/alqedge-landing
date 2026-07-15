@@ -159,18 +159,12 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
 }
 
 // ─── Section 1: Hero ────────────────────────────────────────────────
-function HeroSection({ onJoinClick, emailRef }: { onJoinClick: () => void; emailRef: React.RefObject<HTMLInputElement | null> }) {
+function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2e] to-[#1a1a3e]">
       <ParticlesBackground />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-        <div className="animate-fade-in">
-          <div className="inline-block mb-6 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm font-medium">
-            🎉 Early Access Now Open
-          </div>
-        </div>
-
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 animate-fade-in-up">
           <span className="text-gradient">AI-Powered US Stock Analysis</span>
           <br />
@@ -185,37 +179,25 @@ function HeroSection({ onJoinClick, emailRef }: { onJoinClick: () => void; email
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-          <div className="flex w-full max-w-md">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-5 py-3.5 bg-[#1e1e3a] border border-indigo-500/20 rounded-l-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 text-base"
-            />
-            <button
-              onClick={onJoinClick}
-              className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-r-lg transition-all duration-200 active:scale-95 text-base whitespace-nowrap"
-            >
-              Join Waitlist
+          <a href="/register">
+            <button className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all duration-200 active:scale-95 text-lg shadow-lg shadow-indigo-600/25">
+              Get Started Free
             </button>
-          </div>
+          </a>
+          <a href="/login">
+            <button className="px-8 py-4 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-lg">
+              Sign In
+            </button>
+          </a>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
-          <a href="/register">
-            <button className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold rounded-lg transition-all duration-200 active:scale-95 text-base">
-              Create Free Account
-            </button>
-          </a>
           <a href="/analyze?sample=AAPL">
             <button className="px-6 py-3 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-base">
               See Sample Report
             </button>
           </a>
         </div>
-
-        <p className="mt-4 text-sm text-gray-500 animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
-          No spam. Unsubscribe anytime.
-        </p>
       </div>
 
       {/* Scroll indicator */}
@@ -310,42 +292,32 @@ function TrustSection() {
 }
 
 // ─── Section 4: CTA ─────────────────────────────────────────────────
-function CTASection({ onJoinClick, emailRef }: { onJoinClick: () => void; emailRef: React.RefObject<HTMLInputElement | null> }) {
+function CTASection() {
   return (
     <section className="py-24 md:py-32 bg-gradient-to-b from-[#0a0a1a] to-[#1a1a3e] relative overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30" />
 
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
         <FadeInSection>
-          <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm font-medium">
-            🎉 Early Bird Pricing
-          </div>
-
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="text-gradient">Early Access Now Open</span>
+            <span className="text-gradient">Ready to Get Started?</span>
           </h2>
 
-          <p className="text-xl text-gray-300 mb-4">
-            First <span className="text-amber-300 font-bold">50</span> Pro subscribers lock in{" "}
-            <span className="text-amber-300 font-bold">$9/month forever</span>.
+          <p className="text-xl text-gray-300 mb-10">
+            Create your free account and start analyzing stocks with AI-powered insights in minutes.
           </p>
 
-          <p className="text-gray-500 mb-10">Regular price: $19/month after the first 50.</p>
-
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="flex w-full max-w-md">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-5 py-3.5 bg-[#1e1e3a] border border-indigo-500/20 rounded-l-lg text-white placeholder-gray-500 focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 text-base"
-              />
-              <button
-                onClick={onJoinClick}
-                className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-r-lg transition-all duration-200 active:scale-95 text-base whitespace-nowrap"
-              >
-                Join Waitlist
+            <a href="/register">
+              <button className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all duration-200 active:scale-95 text-lg shadow-lg shadow-indigo-600/25">
+                Get Started Free
               </button>
-            </div>
+            </a>
+            <a href="/pricing">
+              <button className="px-8 py-4 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-lg">
+                View Pricing
+              </button>
+            </a>
           </div>
         </FadeInSection>
       </div>
@@ -394,82 +366,15 @@ function FooterSection() {
   );
 }
 
-// ─── Toast Notification ─────────────────────────────────────────────
-function Toast({ message, visible, type = "success" }: { message: string; visible: boolean; type?: "success" | "error" }) {
-  return (
-    <div
-      className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3.5 rounded-lg text-white font-medium shadow-lg transition-all duration-500 ${
-        type === "error" ? "bg-red-600" : "bg-emerald-600"
-      } ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
-      }`}
-    >
-      {message}
-    </div>
-  );
-}
-
 // ─── Main Page ──────────────────────────────────────────────────────
 export default function Home() {
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const heroEmailRef = useRef<HTMLInputElement>(null);
-  const ctaEmailRef = useRef<HTMLInputElement>(null);
-
-  const showToast = (msg: string, type: "success" | "error" = "success") => {
-    setToastMessage(msg);
-    setToastType(type);
-    setToastVisible(true);
-    setTimeout(() => setToastVisible(false), 4000);
-  };
-
-  const handleJoinClick = async () => {
-    // Read email from whichever input triggered the call
-    const email =
-      heroEmailRef.current?.value || ctaEmailRef.current?.value || "";
-
-    if (!email || !email.includes("@")) {
-      showToast("Please enter a valid email address.", "error");
-      return;
-    }
-
-    const API_URL =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-
-    try {
-      const res = await fetch(`${API_URL}/waitlist`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "landing_page" }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.ok) {
-        showToast("You're on the list! We'll email you on July 28.");
-        // Clear inputs on success
-        if (heroEmailRef.current) heroEmailRef.current.value = "";
-        if (ctaEmailRef.current) ctaEmailRef.current.value = "";
-      } else {
-        showToast(
-          data.message || "Something went wrong. Please try again.",
-          "error"
-        );
-      }
-    } catch {
-      showToast("Something went wrong. Please try again.", "error");
-    }
-  };
-
   return (
     <main className="min-h-screen">
-      <HeroSection onJoinClick={handleJoinClick} emailRef={heroEmailRef} />
+      <HeroSection />
       <FeaturesSection />
       <TrustSection />
-      <CTASection onJoinClick={handleJoinClick} emailRef={ctaEmailRef} />
+      <CTASection />
       <FooterSection />
-      <Toast message={toastMessage} visible={toastVisible} type={toastType} />
     </main>
   );
 }
