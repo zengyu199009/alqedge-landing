@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { Toaster } from "@/components/ui/sonner";
+import { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "AlphaSync — AI-Powered US Stock Analysis",
@@ -27,19 +24,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
-        <Toaster />
-      </body>
-    </html>
-  );
+type Props = {
+  children: ReactNode;
+};
+
+// Root layout — just passes through to [locale]/layout.tsx
+// next-intl handles the locale-based routing
+export default function RootLayout({ children }: Props) {
+  return children;
 }

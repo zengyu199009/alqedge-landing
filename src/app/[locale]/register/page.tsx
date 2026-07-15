@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { toast } from "sonner";
 
 function PasswordStrengthBar({ password }: { password: string }) {
+  const t = useTranslations();
   const getStrength = (pw: string): { level: number; label: string; color: string } => {
     if (!pw) return { level: 0, label: "", color: "" };
     let score = 0;
@@ -19,9 +21,9 @@ function PasswordStrengthBar({ password }: { password: string }) {
     if (/[A-Z]/.test(pw)) score += 1;
     if (/[0-9]/.test(pw)) score += 1;
     if (/[^A-Za-z0-9]/.test(pw)) score += 1;
-    if (score <= 1) return { level: 1, label: "Weak", color: "bg-red-500" };
-    if (score <= 3) return { level: 2, label: "Medium", color: "bg-amber-500" };
-    return { level: 3, label: "Strong", color: "bg-emerald-500" };
+    if (score <= 1) return { level: 1, label: t("auth.register.passwordStrength.weak"), color: "bg-red-500" };
+    if (score <= 3) return { level: 2, label: t("auth.register.passwordStrength.medium"), color: "bg-amber-500" };
+    return { level: 3, label: t("auth.register.passwordStrength.strong"), color: "bg-emerald-500" };
   };
 
   const { level, label, color } = getStrength(password);
@@ -49,6 +51,8 @@ function PasswordStrengthBar({ password }: { password: string }) {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations();
+  const locale = useLocale();
   const plan = searchParams.get("plan");
 
   const [email, setEmail] = useState("");
@@ -71,7 +75,7 @@ function RegisterForm() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/${locale}/auth/callback`,
         },
       });
 
@@ -92,14 +96,14 @@ function RegisterForm() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      toast.error("Passwords do not match");
+      setError(t("auth.register.confirmation.errors.passwordMismatch"));
+      toast.error(t("auth.register.confirmation.errors.passwordMismatch"));
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
-      toast.error("Password must be at least 6 characters");
+      setError(t("auth.register.confirmation.errors.passwordTooShort"));
+      toast.error(t("auth.register.confirmation.errors.passwordTooShort"));
       return;
     }
 
@@ -111,7 +115,7 @@ function RegisterForm() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/${locale}/auth/callback`,
         },
       });
 
@@ -127,9 +131,9 @@ function RegisterForm() {
       // Auto-redirect after 3 seconds
       setTimeout(() => {
         if (plan === "pro") {
-          router.push("/login?plan=pro");
+          router.push(`/${locale}/login?plan=pro`);
         } else {
-          router.push("/login");
+          router.push(`/${locale}/login`);
         }
       }, 3000);
     } catch (err: any) {
@@ -152,13 +156,12 @@ function RegisterForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Check Your Email</h2>
+              <h2 className="text-xl font-bold text-white mb-2">{t("auth.register.confirmation.title")}</h2>
               <p className="text-gray-400 mb-4">
-                We sent a confirmation link to <span className="text-indigo-300">{email}</span>.
-                Please check your inbox and click the link to activate your account.
+                {t("auth.register.confirmation.message", { email })}
               </p>
               <p className="text-gray-500 text-sm">
-                Redirecting to sign in in 3 seconds...
+                {t("auth.register.confirmation.redirecting")}
               </p>
             </CardContent>
           </Card>
@@ -173,12 +176,10 @@ function RegisterForm() {
         <Card className="bg-[#12122a] border-indigo-500/10">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-white">
-              Create Account
+              {t("auth.register.title")}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              {plan === "pro"
-                ? "Start your 7-day free Pro trial"
-                : "Get started with AlphaSync"}
+              {plan === "pro" ? t("auth.register.subtitlePro") : t("auth.register.subtitle")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -207,7 +208,7 @@ function RegisterForm() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              {googleLoading ? "Redirecting to Google..." : "Sign up with Google"}
+              {googleLoading ? t("auth.register.googleLoading") : t("auth.register.google")}
             </button>
 
             <div className="relative mb-4">
@@ -215,19 +216,19 @@ function RegisterForm() {
                 <div className="w-full border-t border-indigo-500/10" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-[#12122a] px-2 text-gray-500">or continue with email</span>
+                <span className="bg-[#12122a] px-2 text-gray-500">{t("auth.register.orEmail")}</span>
               </div>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-gray-300">
-                  Email
+                  {t("auth.register.emailLabel")}
                 </Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t("auth.register.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -237,13 +238,13 @@ function RegisterForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-gray-300">
-                  Password
+                  {t("auth.register.passwordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="At least 6 characters"
+                    placeholder={t("auth.register.passwordPlaceholder")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -273,13 +274,13 @@ function RegisterForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-gray-300">
-                  Confirm Password
+                  {t("auth.register.confirmPasswordLabel")}
                 </Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Re-enter your password"
+                    placeholder={t("auth.register.confirmPasswordPlaceholder")}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -317,7 +318,7 @@ function RegisterForm() {
                 <label htmlFor="agreeToTerms" className="text-sm text-gray-400 leading-relaxed">
                   I agree to the{" "}
                   <Link
-                    href="/terms"
+                    href={`/${locale}/terms`}
                     target="_blank"
                     className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
                   >
@@ -325,7 +326,7 @@ function RegisterForm() {
                   </Link>{" "}
                   and{" "}
                   <Link
-                    href="/privacy"
+                    href={`/${locale}/privacy`}
                     target="_blank"
                     className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
                   >
@@ -345,18 +346,18 @@ function RegisterForm() {
                 disabled={loading || !agreedToTerms}
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5 disabled:opacity-50"
               >
-                {loading ? "Creating account..." : "Create Account"}
+                {loading ? t("auth.register.loading") : t("auth.register.submit")}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center border-t border-indigo-500/10 pt-4">
             <p className="text-sm text-gray-400">
-              Already have an account?{" "}
+              {t("auth.register.hasAccount")}{" "}
               <Link
-                href="/login"
+                href={`/${locale}/login`}
                 className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
               >
-                Sign in
+                {t("auth.register.signIn")}
               </Link>
             </p>
           </CardFooter>

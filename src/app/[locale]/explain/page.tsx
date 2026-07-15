@@ -1,5 +1,8 @@
-// Root-level explain page for GeoIP redirect (no locale prefix)
-export default function ExplainPage() {
+export default function ExplainPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   return (
     <main className="min-h-screen bg-[#0a0a1a] flex items-center justify-center px-6">
       <div className="max-w-lg text-center">

@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,8 @@ import { toast } from "sonner";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations();
+  const locale = useLocale();
   const redirect = searchParams.get("redirect") || "/dashboard";
 
   const [email, setEmail] = useState("");
@@ -25,7 +28,7 @@ function LoginForm() {
   // Show toast if redirected from a protected page (not a direct visit)
   useEffect(() => {
     if (redirect !== "/dashboard" && !toastShown) {
-      toast.info("Please sign in to start an analysis");
+      toast.info(t("auth.login.redirectMessage"));
       setToastShown(true);
     }
   }, []);
@@ -39,7 +42,7 @@ function LoginForm() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/${locale}/auth/callback`,
         },
       });
 
@@ -48,7 +51,6 @@ function LoginForm() {
         toast.error(authError.message);
         setGoogleLoading(false);
       }
-      // If no error, the browser redirects to Google — no need to set loading false
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
       toast.error(err.message || "An unexpected error occurred");
@@ -58,20 +60,20 @@ function LoginForm() {
 
   const handleForgotPassword = async () => {
     if (!email || !email.includes("@")) {
-      toast.error("Please enter your email address first.");
+      toast.error(t("auth.login.forgotPasswordError"));
       return;
     }
 
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+        redirectTo: `${window.location.origin}/${locale}/auth/callback?type=recovery`,
       });
 
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success("Password reset link sent! Check your email.");
+        toast.success(t("auth.login.forgotPasswordSuccess"));
       }
     } catch (err: any) {
       toast.error(err.message || "An unexpected error occurred");
@@ -96,8 +98,8 @@ function LoginForm() {
         return;
       }
 
-      toast.success("Signed in successfully!");
-      router.push(redirect);
+      toast.success(t("auth.login.success"));
+      router.push(`/${locale}${redirect}`);
       router.refresh();
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred");
@@ -111,10 +113,10 @@ function LoginForm() {
     <Card className="bg-[#12122a] border-indigo-500/10">
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-white">
-          Welcome Back
+          {t("auth.login.title")}
         </CardTitle>
         <CardDescription className="text-gray-400">
-          Sign in to your AlphaSync account
+          {t("auth.login.subtitle")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -143,7 +145,7 @@ function LoginForm() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          {googleLoading ? "Redirecting to Google..." : "Sign in with Google"}
+          {googleLoading ? t("auth.login.googleLoading") : t("auth.login.google")}
         </button>
 
         <div className="relative mb-4">
@@ -151,19 +153,19 @@ function LoginForm() {
             <div className="w-full border-t border-indigo-500/10" />
           </div>
           <div className="relative flex justify-center text-xs">
-            <span className="bg-[#12122a] px-2 text-gray-500">or continue with email</span>
+            <span className="bg-[#12122a] px-2 text-gray-500">{t("auth.login.orEmail")}</span>
           </div>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-300">
-              Email
+              {t("auth.login.emailLabel")}
             </Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("auth.login.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -173,12 +175,12 @@ function LoginForm() {
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-gray-300">
-              Password
+              {t("auth.login.passwordLabel")}
             </Label>
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder={t("auth.login.passwordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -198,7 +200,7 @@ function LoginForm() {
               onClick={handleForgotPassword}
               className="text-sm text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
             >
-              Forgot password?
+              {t("auth.login.forgotPassword")}
             </button>
           </div>
 
@@ -207,18 +209,18 @@ function LoginForm() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2.5"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? t("auth.login.loading") : t("auth.login.submit")}
           </Button>
         </form>
       </CardContent>
       <CardFooter className="flex justify-center border-t border-indigo-500/10 pt-4">
         <p className="text-sm text-gray-400">
-          Don&apos;t have an account?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link
-            href="/register"
+            href={`/${locale}/register`}
             className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
           >
-            Create one
+            {t("auth.login.createOne")}
           </Link>
         </p>
       </CardFooter>
@@ -227,6 +229,8 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const t = useTranslations();
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12 bg-[#0a0a1a]">
       <div className="w-full max-w-md">

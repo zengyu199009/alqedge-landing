@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,8 @@ interface AnalysisHistoryItem {
 
 export default function DashboardPage() {
   const router = useRouter();
+  const t = useTranslations();
+  const locale = useLocale();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
@@ -28,7 +31,7 @@ export default function DashboardPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) {
-        router.push("/login");
+        router.push(`/${locale}/login`);
         return;
       }
       setUser(user);
@@ -56,18 +59,18 @@ export default function DashboardPage() {
       }
     };
     fetchPlan();
-  }, [router]);
+  }, [router, locale]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-emerald-600">Completed</Badge>;
+        return <Badge className="bg-emerald-600">{t("dashboard.badges.completed")}</Badge>;
       case "running":
-        return <Badge className="bg-blue-600">In Progress</Badge>;
+        return <Badge className="bg-blue-600">{t("dashboard.badges.inProgress")}</Badge>;
       case "pending":
-        return <Badge className="bg-amber-600">Pending</Badge>;
+        return <Badge className="bg-amber-600">{t("dashboard.badges.pending")}</Badge>;
       case "failed":
-        return <Badge className="bg-red-600">Failed</Badge>;
+        return <Badge className="bg-red-600">{t("dashboard.badges.failed")}</Badge>;
       default:
         return <Badge className="bg-gray-600">{status}</Badge>;
     }
@@ -76,11 +79,11 @@ export default function DashboardPage() {
   const getPlanBadge = () => {
     switch (plan) {
       case "pro":
-        return <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600">Pro</Badge>;
+        return <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600">{t("dashboard.badges.pro")}</Badge>;
       case "team":
-        return <Badge className="bg-gradient-to-r from-amber-600 to-orange-600">Team</Badge>;
+        return <Badge className="bg-gradient-to-r from-amber-600 to-orange-600">{t("dashboard.badges.team")}</Badge>;
       default:
-        return <Badge className="bg-gray-600">Free</Badge>;
+        return <Badge className="bg-gray-600">{t("dashboard.badges.free")}</Badge>;
     }
   };
 
@@ -99,17 +102,17 @@ export default function DashboardPage() {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              Dashboard
+              {t("dashboard.title")}
             </h1>
             <p className="text-gray-400">
-              Welcome back, {user?.email?.split("@")[0] || "User"}
+              {t("dashboard.welcome", { name: user?.email?.split("@")[0] || "User" })}
             </p>
           </div>
           <div className="flex items-center gap-3">
             {getPlanBadge()}
             {analysesRemaining !== null && (
               <span className="text-sm text-gray-400">
-                {analysesRemaining} / {plan === "free" ? "3" : "∞"} analyses remaining
+                {t("dashboard.analysesRemaining", { count: analysesRemaining, total: plan === "free" ? "3" : "∞" })}
               </span>
             )}
           </div>
@@ -119,29 +122,17 @@ export default function DashboardPage() {
         {history.length === 0 && (
           <Card className="bg-[#12122a] border-indigo-500/10 mb-8">
             <CardContent className="py-8">
-              <h2 className="text-lg font-bold text-white mb-4 text-center">How It Works</h2>
+              <h2 className="text-lg font-bold text-white mb-4 text-center">{t("dashboard.howItWorks")}</h2>
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-indigo-400 font-bold text-lg">1</span>
+                {(t.raw("dashboard.steps") as Array<{title: string; desc: string}>).map((step: {title: string; desc: string}, i: number) => (
+                  <div key={i} className="text-center">
+                    <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <span className="text-indigo-400 font-bold text-lg">{i + 1}</span>
+                    </div>
+                    <h3 className="text-white font-semibold mb-1">{step.title}</h3>
+                    <p className="text-gray-500 text-sm">{step.desc}</p>
                   </div>
-                  <h3 className="text-white font-semibold mb-1">Enter a Ticker</h3>
-                  <p className="text-gray-500 text-sm">Type a US stock ticker (e.g., AAPL, MSFT)</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-indigo-400 font-bold text-lg">2</span>
-                  </div>
-                  <h3 className="text-white font-semibold mb-1">AI Analyzes</h3>
-                  <p className="text-gray-500 text-sm">3 AI analysts review fundamentals, technicals, and sentiment</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-10 h-10 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <span className="text-indigo-400 font-bold text-lg">3</span>
-                  </div>
-                  <h3 className="text-white font-semibold mb-1">Get Your Report</h3>
-                  <p className="text-gray-500 text-sm">Receive a structured report with SEC-cited sources in ~3 minutes</p>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -151,15 +142,15 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           <Card className="bg-[#12122a] border-indigo-500/10">
             <CardHeader>
-              <CardTitle className="text-lg text-white">New Analysis</CardTitle>
+              <CardTitle className="text-lg text-white">{t("dashboard.newAnalysis.title")}</CardTitle>
               <CardDescription className="text-gray-400">
-                Start a new stock analysis
+                {t("dashboard.newAnalysis.desc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/analyze">
+              <Link href={`/${locale}/analyze`}>
                 <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white">
-                  Analyze a Stock
+                  {t("dashboard.newAnalysis.cta")}
                 </Button>
               </Link>
             </CardContent>
@@ -167,20 +158,18 @@ export default function DashboardPage() {
 
           <Card className="bg-[#12122a] border-indigo-500/10">
             <CardHeader>
-              <CardTitle className="text-lg text-white">
-                Subscription
-              </CardTitle>
+              <CardTitle className="text-lg text-white">{t("dashboard.subscription.title")}</CardTitle>
               <CardDescription className="text-gray-400">
-                Manage your plan
+                {t("dashboard.subscription.desc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/pricing">
+              <Link href={`/${locale}/pricing`}>
                 <Button
                   variant="outline"
                   className="w-full border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10"
                 >
-                  View Plans
+                  {t("dashboard.subscription.cta")}
                 </Button>
               </Link>
             </CardContent>
@@ -188,21 +177,21 @@ export default function DashboardPage() {
 
           <Card className="bg-[#12122a] border-indigo-500/10">
             <CardHeader>
-              <CardTitle className="text-lg text-white">Account</CardTitle>
+              <CardTitle className="text-lg text-white">{t("dashboard.account.title")}</CardTitle>
               <CardDescription className="text-gray-400">
-                Your profile settings
+                {t("dashboard.account.desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-gray-500 truncate">
                 {user?.email}
               </p>
-              <Link href="/pricing">
+              <Link href={`/${locale}/pricing`}>
                 <Button
                   variant="outline"
                   className="w-full border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10"
                 >
-                  Manage Account
+                  {t("dashboard.account.cta")}
                 </Button>
               </Link>
             </CardContent>
@@ -212,7 +201,7 @@ export default function DashboardPage() {
         {/* Analysis History */}
         <div>
           <h2 className="text-xl font-bold text-white mb-4">
-            Analysis History
+            {t("dashboard.history")}
           </h2>
 
           {history.length === 0 ? (
@@ -232,11 +221,11 @@ export default function DashboardPage() {
                   />
                 </svg>
                 <p className="text-gray-400 mb-4">
-                  No analyses yet. Start your first one!
+                  {t("dashboard.emptyHistory")}
                 </p>
-                <Link href="/analyze">
+                <Link href={`/${locale}/analyze`}>
                   <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white">
-                    Start Analysis
+                    {t("dashboard.startAnalysis")}
                   </Button>
                 </Link>
               </CardContent>
@@ -244,7 +233,7 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {history.map((item) => (
-                <Link key={item.task_id} href={`/analyze/${item.task_id}`}>
+                <Link key={item.task_id} href={`/${locale}/analyze/${item.task_id}`}>
                   <Card className="bg-[#12122a] border-indigo-500/10 hover:border-indigo-500/30 transition-colors cursor-pointer">
                     <CardContent className="flex items-center justify-between py-4">
                       <div>

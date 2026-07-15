@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslations, useLocale } from "next-intl";
 
 // ─── Icons ──────────────────────────────────────────────────────────
 function DataIcon() {
@@ -160,41 +161,44 @@ function FadeInSection({ children, className = "", delay = 0 }: { children: Reac
 
 // ─── Section 1: Hero ────────────────────────────────────────────────
 function HeroSection() {
+  const t = useTranslations();
+  const locale = useLocale();
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2e] to-[#1a1a3e]">
       <ParticlesBackground />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight mb-6 animate-fade-in-up">
-          <span className="text-gradient">AI-Powered US Stock Analysis</span>
+          <span className="text-gradient">{t("hero.title")}</span>
           <br />
-          <span className="text-white">— AlphaSync</span>
+          <span className="text-white">{t("hero.tagline")}</span>
         </h1>
 
         <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          Real-time data. 3 AI Analysts working in parallel. Personalized insights.
+          {t("hero.subtitle")}
           <br className="hidden sm:block" />
-          Get a structured research report with SEC-sourced citations in{" "}
-          <span className="text-indigo-300 font-semibold">3 minutes</span>.
+          {t("hero.subtitle2")}{" "}
+          <span className="text-indigo-300 font-semibold">{t("hero.subtitleHighlight")}</span>.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-          <a href="/register">
+          <a href={`/${locale}/register`}>
             <button className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all duration-200 active:scale-95 text-lg shadow-lg shadow-indigo-600/25">
-              Get Started Free
+              {t("hero.cta")}
             </button>
           </a>
-          <a href="/login">
+          <a href={`/${locale}/login`}>
             <button className="px-8 py-4 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-lg">
-              Sign In
+              {t("hero.signIn")}
             </button>
           </a>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
-          <a href="/analyze?sample=AAPL">
+          <a href={`/${locale}/analyze?sample=AAPL`}>
             <button className="px-6 py-3 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-base">
-              See Sample Report
+              {t("hero.sampleReport")}
             </button>
           </a>
         </div>
@@ -212,25 +216,23 @@ function HeroSection() {
 
 // ─── Section 2: Features ────────────────────────────────────────────
 function FeaturesSection() {
+  const t = useTranslations();
   const featuresRef = useRef<HTMLElement>(null);
   const features = [
     {
       icon: <DataIcon />,
-      title: "Real-Time Data",
-      description:
-        "Direct feeds from SEC EDGAR, Finnhub, and FRED. 15-minute delayed quotes. Every data point traceable to the source.",
+      title: t("features.realTimeData.title"),
+      description: t("features.realTimeData.description"),
     },
     {
       icon: <ChipIcon />,
-      title: "3 AI Analysts",
-      description:
-        "Three AI agents analyze fundamentals, technicals, and news sentiment in parallel. A lead agent synthesizes a cohesive report — like a junior analyst team working for you.",
+      title: t("features.threeAnalysts.title"),
+      description: t("features.threeAnalysts.description"),
     },
     {
       icon: <UserIcon />,
-      title: "Personalized Insights",
-      description:
-        "Build a watchlist, get earnings alerts, and see how your stocks evolve. Each analysis updates automatically as new data arrives.",
+      title: t("features.personalizedInsights.title"),
+      description: t("features.personalizedInsights.description"),
     },
   ];
 
@@ -241,10 +243,10 @@ function FeaturesSection() {
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         <FadeInSection>
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            <span className="text-gradient">Why AlphaSync?</span>
+            <span className="text-gradient">{t("features.title")}</span>
           </h2>
           <p className="text-gray-400 text-center max-w-2xl mx-auto mb-16 text-lg">
-            Three AI agents working in parallel to give you institutional-grade analysis — without the institutional price tag.
+            {t("features.subtitle")}
           </p>
         </FadeInSection>
 
@@ -268,6 +270,8 @@ function FeaturesSection() {
 
 // ─── Section 3: Trust Badges ────────────────────────────────────────
 function TrustSection() {
+  const t = useTranslations();
+
   return (
     <section className="py-20 bg-[#0d0d24] border-t border-indigo-500/5">
       <div className="max-w-4xl mx-auto px-6 text-center">
@@ -275,14 +279,14 @@ function TrustSection() {
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
             <div className="flex items-center gap-2 text-emerald-400 font-medium">
               <ShieldIcon />
-              <span>Every claim links back to SEC filings</span>
+              <span>{t("trust.secFilings")}</span>
             </div>
             <div className="hidden md:block w-px h-8 bg-indigo-500/20" />
             <div className="flex items-center gap-2 text-gray-400 text-sm">
               <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
               </svg>
-              <span>AlphaSync does not provide investment advice. All analysis is for informational purposes only.</span>
+              <span>{t("trust.disclaimer")}</span>
             </div>
           </div>
         </FadeInSection>
@@ -293,6 +297,9 @@ function TrustSection() {
 
 // ─── Section 4: CTA ─────────────────────────────────────────────────
 function CTASection() {
+  const t = useTranslations();
+  const locale = useLocale();
+
   return (
     <section className="py-24 md:py-32 bg-gradient-to-b from-[#0a0a1a] to-[#1a1a3e] relative overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30" />
@@ -300,69 +307,28 @@ function CTASection() {
       <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
         <FadeInSection>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            <span className="text-gradient">Ready to Get Started?</span>
+            <span className="text-gradient">{t("cta.title")}</span>
           </h2>
 
           <p className="text-xl text-gray-300 mb-10">
-            Create your free account and start analyzing stocks with AI-powered insights in minutes.
+            {t("cta.subtitle")}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="/register">
+            <a href={`/${locale}/register`}>
               <button className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-lg transition-all duration-200 active:scale-95 text-lg shadow-lg shadow-indigo-600/25">
-                Get Started Free
+                {t("cta.getStarted")}
               </button>
             </a>
-            <a href="/pricing">
+            <a href={`/${locale}/pricing`}>
               <button className="px-8 py-4 bg-[#1e1e3a] border border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10 font-semibold rounded-lg transition-all duration-200 active:scale-95 text-lg">
-                View Pricing
+                {t("cta.viewPricing")}
               </button>
             </a>
           </div>
         </FadeInSection>
       </div>
     </section>
-  );
-}
-
-// ─── Section 5: Footer ──────────────────────────────────────────────
-function FooterSection() {
-  return (
-    <footer className="py-12 bg-[#0a0a1a] border-t border-indigo-500/10">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="text-gray-500 text-sm">
-            &copy; 2026 AlphaSync. All rights reserved.
-          </div>
-
-          <div className="flex items-center gap-6 text-sm">
-            <a href="/privacy" className="text-gray-500 hover:text-gray-300 transition-colors">
-              Privacy Policy
-            </a>
-            <a href="/terms" className="text-gray-500 hover:text-gray-300 transition-colors">
-              Terms of Service
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-6 pt-6 border-t border-indigo-500/5 text-center">
-          <p className="text-gray-400 text-sm mb-3">
-            Contact:{" "}
-            <a href="mailto:support@alqedge.com" className="text-indigo-400 hover:text-indigo-300 transition-colors underline underline-offset-2">
-              support@alqedge.com
-            </a>
-          </p>
-          <p className="text-amber-400/80 text-xs font-medium">
-            ⚠️ AlphaSync only serves customers located in the United States.
-          </p>
-          <p className="text-gray-600 text-xs mt-2">
-            This tool provides data-driven analysis only and does not constitute investment advice.
-            All investment decisions carry risk. Past performance does not guarantee future results.
-            AlphaSync is not a registered investment adviser.
-          </p>
-        </div>
-      </div>
-    </footer>
   );
 }
 
@@ -374,7 +340,6 @@ export default function Home() {
       <FeaturesSection />
       <TrustSection />
       <CTASection />
-      <FooterSection />
     </main>
   );
 }

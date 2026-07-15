@@ -1,0 +1,389 @@
+{
+  "site": {
+    "title": "AlphaSync — AI 驱动的美股分析",
+    "description": "实时数据。3 个 AI 分析师并行工作。个性化洞察。在 3 分钟内获取带有 SEC 引用来源的结构化研究报告。",
+    "brand": "AlphaSync"
+  },
+  "nav": {
+    "features": "功能特点",
+    "pricing": "定价",
+    "home": "首页",
+    "analyze": "分析",
+    "dashboard": "控制台",
+    "settings": "设置",
+    "signIn": "登录",
+    "signOut": "退出登录",
+    "getStarted": "开始使用",
+    "account": "账户"
+  },
+  "hero": {
+    "title": "AI 驱动的美股分析",
+    "tagline": "— AlphaSync",
+    "subtitle": "实时数据。3 个 AI 分析师并行工作。个性化洞察。",
+    "subtitle2": "在",
+    "subtitleHighlight": "3 分钟",
+    "cta": "免费开始使用",
+    "signIn": "登录",
+    "sampleReport": "查看示例报告"
+  },
+  "features": {
+    "title": "为什么选择 AlphaSync？",
+    "subtitle": "三个 AI 智能体并行工作，为你提供机构级别的分析——无需付出机构级别的价格。",
+    "realTimeData": {
+      "title": "实时数据",
+      "description": "直接从 SEC EDGAR、Finnhub 和 FRED 获取数据。15 分钟延迟报价。每个数据点都可追溯到源头。"
+    },
+    "threeAnalysts": {
+      "title": "3 个 AI 分析师",
+      "description": "三个 AI 智能体并行分析基本面、技术面和新闻情绪。主智能体综合生成一份结构清晰的报告——就像为你工作的一支初级分析师团队。"
+    },
+    "personalizedInsights": {
+      "title": "个性化洞察",
+      "description": "建立自选股列表，获取财报提醒，跟踪你的股票变化。每次分析都会在新数据到达时自动更新。"
+    }
+  },
+  "trust": {
+    "secFilings": "每个结论都可追溯到 SEC 文件",
+    "disclaimer": "AlphaSync 不提供投资建议。所有分析仅供参考。"
+  },
+  "cta": {
+    "title": "准备好开始了吗？",
+    "subtitle": "创建免费账户，立即开始使用 AI 驱动的洞察来分析股票。",
+    "getStarted": "免费开始使用",
+    "viewPricing": "查看定价"
+  },
+  "footer": {
+    "copyright": "© 2026 AlphaSync。保留所有权利。",
+    "privacy": "隐私政策",
+    "terms": "服务条款",
+    "contact": "联系我们",
+    "usOnly": "⚠️ AlphaSync 目前仅服务美国用户。",
+    "disclaimer": "本工具仅提供数据分析，不构成投资建议。所有投资决策均存在风险。过往业绩不代表未来表现。AlphaSync 不是注册投资顾问。"
+  },
+  "pricing": {
+    "earlyBird": "🎉 早鸟优惠 — 剩余 {spots} 个名额（共 50 个）",
+    "title": "简单透明的定价",
+    "subtitle": "前 {count} 位 Pro 订阅者锁定 {price} 终身优惠价。常规价格：{regular}（50 名之后）。",
+    "spotsFilled": "已用名额：{filled}",
+    "spotsRemaining": "剩余：{remaining}",
+    "monthly": "月付",
+    "annual": "年付",
+    "savePercent": "节省约 17%",
+    "perMonth": "/月",
+    "faqTitle": "常见问题",
+    "faq": [
+      {
+        "q": "可以随时取消吗？",
+        "a": "是的。你可以随时在账户设置中取消订阅。如果在 7 天免费试用期内取消，不会收取任何费用。"
+      },
+      {
+        "q": "你们接受哪些支付方式？",
+        "a": "支付由 Waffo Pancake（Waffo.com Limited）安全处理，他们是我们的记录商户。接受所有主流信用卡。"
+      },
+      {
+        "q": "有退款保障吗？",
+        "a": "有的。首次 Pro 订阅者享受 7 天退款保证。如果在首次扣费后 7 天内使用次数少于 3 次，请联系客服退款。"
+      },
+      {
+        "q": "取消后我的数据会怎样？",
+        "a": "取消后，你的账户数据将保留 30 天。之后将根据我们的隐私政策删除。"
+      }
+    ],
+    "plans": {
+      "free": {
+        "name": "免费版",
+        "price": "$0",
+        "description": "开始基础分析",
+        "features": [
+          "每 30 天 5 次股票分析",
+          "仅限基本面分析",
+          "基础报告格式",
+          "邮件支持"
+        ],
+        "cta": "免费开始使用"
+      },
+      "pro": {
+        "name": "专业版",
+        "price": "$19",
+        "description": "为认真投资者打造",
+        "features": [
+          "每小时 60 次分析（软限制）",
+          "所有分析类型",
+          "完整详细报告及引用来源",
+          "7 天免费试用",
+          "优先邮件支持"
+        ],
+        "cta": "开始免费试用",
+        "badge": "最受欢迎",
+        "annual": {
+          "price": "$190",
+          "description": "为认真投资者打造——节省约 17%",
+          "features": [
+            "每小时 60 次分析（软限制）",
+            "所有分析类型",
+            "完整详细报告及引用来源",
+            "7 天免费试用",
+            "优先邮件支持",
+            "按年付（$190/年）"
+          ],
+          "badge": "最佳性价比"
+        }
+      },
+      "team": {
+        "name": "团队版",
+        "price": "$49",
+        "description": "为团队和小型基金打造",
+        "features": [
+          "最多 5 个席位",
+          "每小时 300 次分析",
+          "所有分析类型",
+          "完整详细报告及引用来源",
+          "共享自选股列表",
+          "优先支持"
+        ],
+        "cta": "联系销售",
+        "annual": {
+          "price": "$490",
+          "description": "为团队和小型基金打造——节省约 17%",
+          "features": [
+            "最多 5 个席位",
+            "每小时 300 次分析",
+            "所有分析类型",
+            "完整详细报告及引用来源",
+            "共享自选股列表",
+            "优先支持",
+            "按年付（$490/年）"
+          ]
+        }
+      }
+    },
+    "cancelAnytime": "随时取消，无需付费。"
+  },
+  "auth": {
+    "register": {
+      "title": "创建账户",
+      "subtitle": "开始使用 AlphaSync",
+      "subtitlePro": "开始你的 7 天免费专业版试用",
+      "google": "使用 Google 注册",
+      "googleLoading": "正在跳转到 Google...",
+      "orEmail": "或继续使用邮箱",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "密码",
+      "passwordPlaceholder": "至少 6 个字符",
+      "confirmPasswordLabel": "确认密码",
+      "confirmPasswordPlaceholder": "再次输入密码",
+      "agreeToTerms": "我同意 {terms} 和 {privacy}",
+      "terms": "服务条款",
+      "privacy": "隐私政策",
+      "submit": "创建账户",
+      "loading": "正在创建账户...",
+      "hasAccount": "已有账户？",
+      "signIn": "登录",
+      "passwordStrength": {
+        "weak": "弱",
+        "medium": "中",
+        "strong": "强"
+      },
+      "confirmation": {
+        "title": "查看你的邮箱",
+        "message": "我们已向 {email} 发送了确认链接。请查收收件箱并点击链接激活账户。",
+        "redirecting": "3 秒后跳转到登录页面...",
+        "errors": {
+          "passwordMismatch": "两次输入的密码不一致",
+          "passwordTooShort": "密码至少需要 6 个字符"
+        }
+      }
+    },
+    "login": {
+      "title": "欢迎回来",
+      "subtitle": "登录你的 AlphaSync 账户",
+      "google": "使用 Google 登录",
+      "googleLoading": "正在跳转到 Google...",
+      "orEmail": "或继续使用邮箱",
+      "emailLabel": "邮箱",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "密码",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "忘记密码？",
+      "submit": "登录",
+      "loading": "正在登录...",
+      "noAccount": "还没有账户？",
+      "createOne": "创建一个",
+      "success": "登录成功！",
+      "redirectMessage": "请先登录再开始分析",
+      "forgotPasswordSuccess": "密码重置链接已发送！请查看邮箱。",
+      "forgotPasswordError": "请先输入邮箱地址。"
+    },
+    "callback": {
+      "processing": "正在完成登录...",
+      "processingHint": "系统将自动跳转。",
+      "success": "登录成功！",
+      "successHint": "正在跳转到控制台...",
+      "error": "认证失败",
+      "backToSignIn": "返回登录"
+    }
+  },
+  "analyze": {
+    "title": "股票分析",
+    "subtitle": "输入美股代码，获取 AI 驱动的研究报告",
+    "freePlan": "免费版：本月剩余 {count} 次分析。",
+    "analysesLabel": "次分析",
+    "analysisLabel": "次分析",
+    "upgradePro": "升级到专业版",
+    "newRequest": "新建分析请求",
+    "newRequestDesc": "我们的 3 个 AI 分析师将分析 SEC 文件、市场数据和新闻情绪",
+    "tickerLabel": "股票代码",
+    "tickerPlaceholder": "例如：AAPL、MSFT、GOOGL",
+    "tickerHint": "输入美股代码（1-5 个字符）",
+    "analysisType": "分析类型",
+    "analysisTypePlaceholder": "选择分析类型",
+    "tryTicker": "试试这些代码：",
+    "submit": "开始分析",
+    "submitting": "正在提交...",
+    "errors": {
+      "emptyTicker": "请输入股票代码",
+      "invalidTicker": "无效的股票代码。请输入 1-5 个大写字母（例如：AAPL、MSFT、GOOGL）",
+      "failedSubmit": "提交分析失败"
+    },
+    "types": {
+      "comprehensive": {
+        "label": "综合分析（全部）",
+        "description": "结合基本面、技术面和情绪面的完整分析，呈现全面图景"
+      },
+      "fundamental": {
+        "label": "基本面分析",
+        "description": "深入分析财务报表、收入、盈利和估值指标"
+      },
+      "technical": {
+        "label": "技术面分析",
+        "description": "价格趋势、支撑/阻力位、RSI、MACD 和移动平均线"
+      },
+      "sentiment": {
+        "label": "情绪面分析",
+        "description": "围绕该股票的新闻情绪、社交媒体讨论热度及市场情绪"
+      }
+    },
+    "infoCards": {
+      "time": {
+        "title": "⏱ 约 3 分钟",
+        "desc": "综合分析报告的典型分析时间"
+      },
+      "sources": {
+        "title": "📊 4 个数据源",
+        "desc": "SEC EDGAR、Finnhub、FRED 和新闻情绪"
+      },
+      "agents": {
+        "title": "🤖 3 个 AI 智能体",
+        "desc": "基本面、技术面和情绪面并行分析"
+      }
+    }
+  },
+  "analysisResult": {
+    "title": "分析结果",
+    "taskId": "任务 ID：{id}",
+    "progress": {
+      "analyzing": "正在分析...通常需要约 3 分钟",
+      "cancel": "取消分析",
+      "cancelling": "正在取消...",
+      "timeoutWarning": "⏱ 这次分析耗时超出预期。系统可能正面临高需求。你可以再等一会儿，或者",
+      "startNew": "开始新的分析"
+    },
+    "stages": {
+      "queued": "排队等待处理",
+      "fetching_data": "正在获取市场数据...",
+      "fundamental_analysis": "正在运行基本面分析...",
+      "technical_analysis": "正在运行技术面分析...",
+      "sentiment_analysis": "正在运行情绪面分析...",
+      "synthesizing": "正在综合生成最终报告...",
+      "completed": "分析完成！",
+      "failed": "分析失败"
+    },
+    "status": {
+      "completed": "已完成",
+      "inProgress": "进行中",
+      "pending": "等待中",
+      "failed": "失败"
+    },
+    "error": {
+      "title": "分析失败",
+      "retry": "重新分析",
+      "retrying": "正在重试..."
+    },
+    "summary": "摘要",
+    "priceChart": "价格走势图",
+    "financialPerformance": "财务表现",
+    "valuation": "估值（市盈率）",
+    "technicalIndicators": "技术指标",
+    "sources": "数据来源",
+    "citations": "引用来源：",
+    "feedback": {
+      "question": "这次分析对你有帮助吗？",
+      "thanks": "感谢你的反馈！",
+      "improve": "谢谢！我们会持续改进。"
+    },
+    "disclaimer": "⚠️ 本报告不构成投资建议。",
+    "disclaimerText": "所有投资决策均存在风险。过往业绩不代表未来表现。AlphaSync 不是注册投资顾问。",
+    "actions": {
+      "newAnalysis": "新建分析",
+      "backToDashboard": "返回控制台",
+      "exportPDF": "导出 PDF",
+      "copyLink": "复制链接",
+      "linkCopied": "链接已复制到剪贴板！"
+    },
+    "generatedOn": "生成于 {date}",
+    "connecting": "正在连接分析服务..."
+  },
+  "dashboard": {
+    "title": "控制台",
+    "welcome": "欢迎回来，{name}",
+    "analysesRemaining": "剩余 {count} / {total} 次分析",
+    "howItWorks": "使用说明",
+    "steps": [
+      {
+        "title": "输入股票代码",
+        "desc": "输入美股代码（例如：AAPL、MSFT）"
+      },
+      {
+        "title": "AI 分析",
+        "desc": "3 个 AI 分析师审查基本面、技术面和情绪面"
+      },
+      {
+        "title": "获取报告",
+        "desc": "约 3 分钟后收到带有 SEC 引用来源的结构化报告"
+      }
+    ],
+    "newAnalysis": {
+      "title": "新建分析",
+      "desc": "开始新的股票分析",
+      "cta": "分析股票"
+    },
+    "subscription": {
+      "title": "订阅",
+      "desc": "管理你的套餐",
+      "cta": "查看方案"
+    },
+    "account": {
+      "title": "账户",
+      "desc": "个人资料设置",
+      "cta": "管理账户"
+    },
+    "history": "分析历史",
+    "emptyHistory": "还没有分析记录。开始你的第一次分析吧！",
+    "startAnalysis": "开始分析",
+    "badges": {
+      "free": "免费版",
+      "pro": "专业版",
+      "team": "团队版",
+      "completed": "已完成",
+      "inProgress": "进行中",
+      "pending": "等待中",
+      "failed": "失败"
+    }
+  },
+  "language": {
+    "switch": "语言",
+    "en": "English",
+    "zh": "中文"
+  }
+}

@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { createAnalysisEventSource, getAnalysisResult, submitAnalysis, cancelAnalysis, type AnalysisResult } from "@/lib/api";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +63,8 @@ function formatCitationLabel(url: string): string {
 export default function AnalysisResultPage() {
   const params = useParams();
   const router = useRouter();
+  const t = useTranslations();
+  const locale = useLocale();
   const taskId = params.taskId as string;
 
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -219,19 +222,19 @@ export default function AnalysisResultPage() {
 
   const handleFeedback = (type: "like" | "dislike") => {
     setFeedback(type);
-    toast.success(type === "like" ? "Thanks for your feedback!" : "Thanks! We'll work on improving.");
+    toast.success(type === "like" ? t("analysisResult.feedback.thanks") : t("analysisResult.feedback.improve"));
   };
 
   const getStatusBadge = () => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-emerald-600">Completed</Badge>;
+        return <Badge className="bg-emerald-600">{t("analysisResult.status.completed")}</Badge>;
       case "running":
-        return <Badge className="bg-blue-600">In Progress</Badge>;
+        return <Badge className="bg-blue-600">{t("analysisResult.status.inProgress")}</Badge>;
       case "pending":
-        return <Badge className="bg-amber-600">Pending</Badge>;
+        return <Badge className="bg-amber-600">{t("analysisResult.status.pending")}</Badge>;
       case "failed":
-        return <Badge className="bg-red-600">Failed</Badge>;
+        return <Badge className="bg-red-600">{t("analysisResult.status.failed")}</Badge>;
     }
   };
 
@@ -242,11 +245,11 @@ export default function AnalysisResultPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              Analysis Result
+              {t("analysisResult.title")}
             </h1>
             {getStatusBadge()}
           </div>
-          <p className="text-gray-400 text-sm font-mono">Task ID: {taskId}</p>
+          <p className="text-gray-400 text-sm font-mono">{t("analysisResult.taskId", { id: taskId })}</p>
         </div>
 
         {/* Progress */}
@@ -256,7 +259,7 @@ export default function AnalysisResultPage() {
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-gray-300 text-sm font-medium">
-                    {STAGE_LABELS[currentStage] || currentStage}
+                    {t(`analysisResult.stages.${currentStage}`) || currentStage}
                   </span>
                   <span className="text-indigo-400 text-sm font-mono">
                     {progress}%
@@ -271,12 +274,12 @@ export default function AnalysisResultPage() {
               </div>
               {estimatedRemaining && (
                 <p className="text-indigo-400/80 text-xs mt-1">
-                  {STAGE_LABELS[currentStage] || currentStage}: {estimatedRemaining} remaining
+                  {t(`analysisResult.stages.${currentStage}`) || currentStage}: {estimatedRemaining} remaining
                 </p>
               )}
               <div className="flex items-center gap-2 text-gray-500 text-sm">
                 <span className="animate-spin w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full inline-block" />
-                Analyzing... This typically takes about 3 minutes
+                {t("analysisResult.progress.analyzing")}
               </div>
 
               {/* Cancel button */}
@@ -301,14 +304,14 @@ export default function AnalysisResultPage() {
                   {cancelling ? (
                     <>
                       <span className="animate-spin w-3 h-3 border-2 border-red-400 border-t-transparent rounded-full inline-block mr-2" />
-                      Cancelling...
+                      {t("analysisResult.progress.cancelling")}
                     </>
                   ) : (
                     <>
                       <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      Cancel Analysis
+                      {t("analysisResult.progress.cancel")}
                     </>
                   )}
                 </Button>
@@ -318,11 +321,7 @@ export default function AnalysisResultPage() {
               {showTimeoutWarning && (
                 <div className="mt-4 p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
                   <p className="text-amber-300 text-sm">
-                    ⏱ This analysis is taking longer than expected. The system may be experiencing high demand.
-                    You can wait a bit longer or{" "}
-                    <Link href="/analyze" className="underline underline-offset-2">
-                      start a new analysis
-                    </Link>
+                    <>{t("analysisResult.progress.timeoutWarning")} <Link href="/analyze" className="underline underline-offset-2">{t("analysisResult.progress.startNew")}</Link>.</>
                     .
                   </p>
                 </div>
@@ -351,7 +350,7 @@ export default function AnalysisResultPage() {
                 </svg>
                 <div className="flex-1">
                   <p className="text-red-400 font-medium mb-1">
-                    Analysis Failed
+                    {t("analysisResult.error.title")}
                   </p>
                   <p className="text-gray-400 text-sm mb-4">
                     {result?.error || error || "An unknown error occurred."}
@@ -361,7 +360,7 @@ export default function AnalysisResultPage() {
                     disabled={retrying}
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
                   >
-                    {retrying ? "Retrying..." : "Retry Analysis"}
+                    {retrying ? t("analysisResult.error.retrying") : t("analysisResult.error.retry")}
                   </Button>
                 </div>
               </div>
@@ -375,24 +374,21 @@ export default function AnalysisResultPage() {
             {/* Generated on + Actions */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-xs text-gray-500">
-                Generated on{" "}
-                {result.report.generated_at
-                  ? new Date(result.report.generated_at).toLocaleDateString("en-US", {
+                {t("analysisResult.generatedOn", { date: result.report.generated_at ? new Date(result.report.generated_at).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                       timeZoneName: "short",
-                    })
-                  : new Date().toLocaleDateString("en-US", {
+                    }) : new Date().toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                       timeZoneName: "short",
-                    })}
+                    }) })}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -404,19 +400,19 @@ export default function AnalysisResultPage() {
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
                   </svg>
-                  Export PDF
+                  {t("analysisResult.actions.exportPDF")}
                 </button>
                 <button
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
-                    toast.success("Link copied to clipboard!");
+                    toast.success(t("analysisResult.actions.linkCopied"));
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-gray-300 hover:bg-indigo-500/10 text-xs font-medium transition-colors"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
                   </svg>
-                  Copy Link
+                  {t("analysisResult.actions.copyLink")}
                 </button>
               </div>
             </div>
@@ -424,7 +420,7 @@ export default function AnalysisResultPage() {
             {/* Summary */}
             <Card className="bg-[#12122a] border-indigo-500/10">
               <CardHeader>
-                <CardTitle className="text-lg text-white">Summary</CardTitle>
+                <CardTitle className="text-lg text-white">{t("analysisResult.summary")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-300 leading-relaxed">
@@ -441,7 +437,7 @@ export default function AnalysisResultPage() {
                   <Card className="bg-[#12122a] border-indigo-500/10">
                     <CardHeader>
                       <CardTitle className="text-lg text-white">
-                        Price Chart
+                        {t("analysisResult.priceChart")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -455,7 +451,7 @@ export default function AnalysisResultPage() {
                   <Card className="bg-[#12122a] border-indigo-500/10">
                     <CardHeader>
                       <CardTitle className="text-lg text-white">
-                        Financial Performance
+                        {t("analysisResult.financialPerformance")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -469,7 +465,7 @@ export default function AnalysisResultPage() {
                   <Card className="bg-[#12122a] border-indigo-500/10">
                     <CardHeader>
                       <CardTitle className="text-lg text-white">
-                        Valuation (P/E Ratio)
+                        {t("analysisResult.valuation")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -487,7 +483,7 @@ export default function AnalysisResultPage() {
                   <Card className="bg-[#12122a] border-indigo-500/10">
                     <CardHeader>
                       <CardTitle className="text-lg text-white">
-                        Technical Indicators
+                        {t("analysisResult.technicalIndicators")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -544,7 +540,7 @@ export default function AnalysisResultPage() {
             {result.report.sources.length > 0 && (
               <Card className="bg-[#12122a] border-indigo-500/10">
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">Sources</CardTitle>
+                  <CardTitle className="text-lg text-white">{t("analysisResult.sources")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -569,7 +565,7 @@ export default function AnalysisResultPage() {
             <Card className="bg-[#12122a] border-indigo-500/10">
               <CardContent className="py-4">
                 <div className="flex items-center justify-center gap-4">
-                  <p className="text-gray-400 text-sm mr-2">Was this analysis helpful?</p>
+                  <p className="text-gray-400 text-sm mr-2">{t("analysisResult.feedback.question")}</p>
                   <button
                     onClick={() => handleFeedback("like")}
                     disabled={feedback !== null}
@@ -618,12 +614,10 @@ export default function AnalysisResultPage() {
                 </svg>
                 <div className="text-sm text-amber-300/90 leading-relaxed">
                   <p className="font-medium mb-1">
-                    ⚠️ This report does not constitute investment advice.
+                    {t("analysisResult.disclaimer")}
                   </p>
                   <p>
-                    All investment decisions carry risk. Past performance does
-                    not guarantee future results. AlphaSync is not a registered
-                    investment adviser.
+                    {t("analysisResult.disclaimerText")}
                   </p>
                 </div>
               </div>
@@ -633,7 +627,7 @@ export default function AnalysisResultPage() {
             <div className="flex items-center gap-4 pt-4">
               <Link href="/analyze">
                 <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white">
-                  New Analysis
+                {t("analysisResult.actions.newAnalysis")}
                 </Button>
               </Link>
               <Link href="/dashboard">
@@ -641,7 +635,7 @@ export default function AnalysisResultPage() {
                   variant="outline"
                   className="border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10"
                 >
-                  Back to Dashboard
+                {t("analysisResult.actions.backToDashboard")}
                 </Button>
               </Link>
             </div>
@@ -653,7 +647,7 @@ export default function AnalysisResultPage() {
           <Card className="bg-[#12122a] border-indigo-500/10">
             <CardContent className="py-12 text-center">
               <div className="animate-spin w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full mx-auto mb-4" />
-              <p className="text-gray-400">Connecting to analysis service...</p>
+              <p className="text-gray-400">{t("analysisResult.connecting")}</p>
             </CardContent>
           </Card>
         )}

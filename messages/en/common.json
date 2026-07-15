@@ -1,0 +1,389 @@
+{
+  "site": {
+    "title": "AlphaSync — AI-Powered US Stock Analysis",
+    "description": "Real-time data. 3 AI Analysts working in parallel. Personalized insights. Get a structured research report with SEC-sourced citations in 3 minutes.",
+    "brand": "AlphaSync"
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "home": "Home",
+    "analyze": "Analyze",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "getStarted": "Get Started",
+    "account": "Account"
+  },
+  "hero": {
+    "title": "AI-Powered US Stock Analysis",
+    "tagline": "— AlphaSync",
+    "subtitle": "Real-time data. 3 AI Analysts working in parallel. Personalized insights.",
+    "subtitle2": "Get a structured research report with SEC-sourced citations in",
+    "subtitleHighlight": "3 minutes",
+    "cta": "Get Started Free",
+    "signIn": "Sign In",
+    "sampleReport": "See Sample Report"
+  },
+  "features": {
+    "title": "Why AlphaSync?",
+    "subtitle": "Three AI agents working in parallel to give you institutional-grade analysis — without the institutional price tag.",
+    "realTimeData": {
+      "title": "Real-Time Data",
+      "description": "Direct feeds from SEC EDGAR, Finnhub, and FRED. 15-minute delayed quotes. Every data point traceable to the source."
+    },
+    "threeAnalysts": {
+      "title": "3 AI Analysts",
+      "description": "Three AI agents analyze fundamentals, technicals, and news sentiment in parallel. A lead agent synthesizes a cohesive report — like a junior analyst team working for you."
+    },
+    "personalizedInsights": {
+      "title": "Personalized Insights",
+      "description": "Build a watchlist, get earnings alerts, and see how your stocks evolve. Each analysis updates automatically as new data arrives."
+    }
+  },
+  "trust": {
+    "secFilings": "Every claim links back to SEC filings",
+    "disclaimer": "AlphaSync does not provide investment advice. All analysis is for informational purposes only."
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "subtitle": "Create your free account and start analyzing stocks with AI-powered insights in minutes.",
+    "getStarted": "Get Started Free",
+    "viewPricing": "View Pricing"
+  },
+  "footer": {
+    "copyright": "© 2026 AlphaSync. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact",
+    "usOnly": "⚠️ AlphaSync only serves customers located in the United States.",
+    "disclaimer": "This tool provides data-driven analysis only and does not constitute investment advice. All investment decisions carry risk. Past performance does not guarantee future results. AlphaSync is not a registered investment adviser."
+  },
+  "pricing": {
+    "earlyBird": "🎉 Early Bird Pricing — {spots} of 50 spots remaining",
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "First {count} Pro subscribers lock in {price} forever. Regular price: {regular} after the first 50.",
+    "spotsFilled": "Spots filled: {filled}",
+    "spotsRemaining": "Remaining: {remaining}",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "savePercent": "Save ~17%",
+    "perMonth": "/month",
+    "faqTitle": "Frequently Asked Questions",
+    "faq": [
+      {
+        "q": "Can I cancel anytime?",
+        "a": "Yes. You can cancel your subscription at any time from your account settings. If you cancel during the 7-day free trial, you won't be charged."
+      },
+      {
+        "q": "What payment methods do you accept?",
+        "a": "Payments are processed securely by Waffo Pancake (Waffo.com Limited), our Merchant of Record. All major credit cards are accepted."
+      },
+      {
+        "q": "Is there a money-back guarantee?",
+        "a": "Yes. First-time Pro subscribers get a 7-day money-back guarantee. Contact support within 7 days of your first charge if you've used fewer than 3 analyses."
+      },
+      {
+        "q": "What happens to my data if I cancel?",
+        "a": "Your account data is retained for 30 days after cancellation. After that, it is deleted in accordance with our Privacy Policy."
+      }
+    ],
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "$0",
+        "description": "Get started with basic analysis",
+        "features": [
+          "5 stock analyses per 30 days",
+          "Fundamental analysis only",
+          "Basic report format",
+          "Email support"
+        ],
+        "cta": "Get Started Free"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$19",
+        "description": "For serious investors",
+        "features": [
+          "60 analyses per hour (soft cap)",
+          "All analysis types",
+          "Full detailed reports with citations",
+          "7-day free trial",
+          "Priority email support"
+        ],
+        "cta": "Start Free Trial",
+        "badge": "Most Popular",
+        "annual": {
+          "price": "$190",
+          "description": "For serious investors — save ~17%",
+          "features": [
+            "60 analyses per hour (soft cap)",
+            "All analysis types",
+            "Full detailed reports with citations",
+            "7-day free trial",
+            "Priority email support",
+            "Billed annually ($190/year)"
+          ],
+          "badge": "Best Value"
+        }
+      },
+      "team": {
+        "name": "Team",
+        "price": "$49",
+        "description": "For teams and small funds",
+        "features": [
+          "Up to 5 seats",
+          "300 analyses per hour",
+          "All analysis types",
+          "Full detailed reports with citations",
+          "Shared watchlists",
+          "Priority support"
+        ],
+        "cta": "Contact Sales",
+        "annual": {
+          "price": "$490",
+          "description": "For teams and small funds — save ~17%",
+          "features": [
+            "Up to 5 seats",
+            "300 analyses per hour",
+            "All analysis types",
+            "Full detailed reports with citations",
+            "Shared watchlists",
+            "Priority support",
+            "Billed annually ($490/year)"
+          ]
+        }
+      }
+    },
+    "cancelAnytime": "Cancel anytime. No charge."
+  },
+  "auth": {
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Get started with AlphaSync",
+      "subtitlePro": "Start your 7-day free Pro trial",
+      "google": "Sign up with Google",
+      "googleLoading": "Redirecting to Google...",
+      "orEmail": "or continue with email",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter your password",
+      "agreeToTerms": "I agree to the {terms} and {privacy}",
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy",
+      "submit": "Create Account",
+      "loading": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "passwordStrength": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "confirmation": {
+        "title": "Check Your Email",
+        "message": "We sent a confirmation link to {email}. Please check your inbox and click the link to activate your account.",
+        "redirecting": "Redirecting to sign in in 3 seconds...",
+        "errors": {
+          "passwordMismatch": "Passwords do not match",
+          "passwordTooShort": "Password must be at least 6 characters"
+        }
+      }
+    },
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your AlphaSync account",
+      "google": "Sign in with Google",
+      "googleLoading": "Redirecting to Google...",
+      "orEmail": "or continue with email",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "loading": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one",
+      "success": "Signed in successfully!",
+      "redirectMessage": "Please sign in to start an analysis",
+      "forgotPasswordSuccess": "Password reset link sent! Check your email.",
+      "forgotPasswordError": "Please enter your email address first."
+    },
+    "callback": {
+      "processing": "Completing sign-in...",
+      "processingHint": "You will be redirected automatically.",
+      "success": "Signed in successfully!",
+      "successHint": "Redirecting to dashboard...",
+      "error": "Authentication failed",
+      "backToSignIn": "Back to sign in"
+    }
+  },
+  "analyze": {
+    "title": "Stock Analysis",
+    "subtitle": "Enter a US stock ticker to get an AI-powered research report",
+    "freePlan": "Free plan: {count} {analyses} remaining this month.",
+    "analysesLabel": "analyses",
+    "analysisLabel": "analysis",
+    "upgradePro": "Upgrade to Pro",
+    "newRequest": "New Analysis Request",
+    "newRequestDesc": "Our 3 AI analysts will analyze SEC filings, market data, and news sentiment",
+    "tickerLabel": "Stock Ticker",
+    "tickerPlaceholder": "e.g., AAPL, MSFT, GOOGL",
+    "tickerHint": "Enter a US stock ticker symbol (1-5 characters)",
+    "analysisType": "Analysis Type",
+    "analysisTypePlaceholder": "Select analysis type",
+    "tryTicker": "Try a ticker:",
+    "submit": "Start Analysis",
+    "submitting": "Submitting...",
+    "errors": {
+      "emptyTicker": "Please enter a stock ticker",
+      "invalidTicker": "Invalid ticker symbol. Enter 1-5 uppercase letters (e.g., AAPL, MSFT, GOOGL)",
+      "failedSubmit": "Failed to submit analysis"
+    },
+    "types": {
+      "comprehensive": {
+        "label": "Comprehensive (All)",
+        "description": "Full analysis combining fundamentals, technicals, and sentiment for a complete picture"
+      },
+      "fundamental": {
+        "label": "Fundamental Analysis",
+        "description": "Deep dive into financial statements, revenue, earnings, and valuation metrics"
+      },
+      "technical": {
+        "label": "Technical Analysis",
+        "description": "Price trends, support/resistance levels, RSI, MACD, and moving averages"
+      },
+      "sentiment": {
+        "label": "Sentiment Analysis",
+        "description": "News sentiment, social media buzz, and market mood around the ticker"
+      }
+    },
+    "infoCards": {
+      "time": {
+        "title": "⏱ ~3 minutes",
+        "desc": "Typical analysis time for comprehensive reports"
+      },
+      "sources": {
+        "title": "📊 4 data sources",
+        "desc": "SEC EDGAR, Finnhub, FRED, and news sentiment"
+      },
+      "agents": {
+        "title": "🤖 3 AI agents",
+        "desc": "Fundamental, technical, and sentiment in parallel"
+      }
+    }
+  },
+  "analysisResult": {
+    "title": "Analysis Result",
+    "taskId": "Task ID: {id}",
+    "progress": {
+      "analyzing": "Analyzing... This typically takes about 3 minutes",
+      "cancel": "Cancel Analysis",
+      "cancelling": "Cancelling...",
+      "timeoutWarning": "⏱ This analysis is taking longer than expected. The system may be experiencing high demand. You can wait a bit longer or",
+      "startNew": "start a new analysis"
+    },
+    "stages": {
+      "queued": "Queued for processing",
+      "fetching_data": "Fetching market data...",
+      "fundamental_analysis": "Running fundamental analysis...",
+      "technical_analysis": "Running technical analysis...",
+      "sentiment_analysis": "Running sentiment analysis...",
+      "synthesizing": "Synthesizing final report...",
+      "completed": "Analysis complete!",
+      "failed": "Analysis failed"
+    },
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "error": {
+      "title": "Analysis Failed",
+      "retry": "Retry Analysis",
+      "retrying": "Retrying..."
+    },
+    "summary": "Summary",
+    "priceChart": "Price Chart",
+    "financialPerformance": "Financial Performance",
+    "valuation": "Valuation (P/E Ratio)",
+    "technicalIndicators": "Technical Indicators",
+    "sources": "Sources",
+    "citations": "Citations:",
+    "feedback": {
+      "question": "Was this analysis helpful?",
+      "thanks": "Thanks for your feedback!",
+      "improve": "Thanks! We'll work on improving."
+    },
+    "disclaimer": "⚠️ This report does not constitute investment advice.",
+    "disclaimerText": "All investment decisions carry risk. Past performance does not guarantee future results. AlphaSync is not a registered investment adviser.",
+    "actions": {
+      "newAnalysis": "New Analysis",
+      "backToDashboard": "Back to Dashboard",
+      "exportPDF": "Export PDF",
+      "copyLink": "Copy Link",
+      "linkCopied": "Link copied to clipboard!"
+    },
+    "generatedOn": "Generated on {date}",
+    "connecting": "Connecting to analysis service..."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "analysesRemaining": "{count} / {total} analyses remaining",
+    "howItWorks": "How It Works",
+    "steps": [
+      {
+        "title": "Enter a Ticker",
+        "desc": "Type a US stock ticker (e.g., AAPL, MSFT)"
+      },
+      {
+        "title": "AI Analyzes",
+        "desc": "3 AI analysts review fundamentals, technicals, and sentiment"
+      },
+      {
+        "title": "Get Your Report",
+        "desc": "Receive a structured report with SEC-cited sources in ~3 minutes"
+      }
+    ],
+    "newAnalysis": {
+      "title": "New Analysis",
+      "desc": "Start a new stock analysis",
+      "cta": "Analyze a Stock"
+    },
+    "subscription": {
+      "title": "Subscription",
+      "desc": "Manage your plan",
+      "cta": "View Plans"
+    },
+    "account": {
+      "title": "Account",
+      "desc": "Your profile settings",
+      "cta": "Manage Account"
+    },
+    "history": "Analysis History",
+    "emptyHistory": "No analyses yet. Start your first one!",
+    "startAnalysis": "Start Analysis",
+    "badges": {
+      "free": "Free",
+      "pro": "Pro",
+      "team": "Team",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "pending": "Pending",
+      "failed": "Failed"
+    }
+  },
+  "language": {
+    "switch": "Language",
+    "en": "English",
+    "zh": "中文"
+  }
+}

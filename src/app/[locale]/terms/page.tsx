@@ -1,10 +1,4 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Terms of Service — AlphaSync",
-  description: "AlphaSync Terms of Service. By using alqedge.com, you agree to these terms.",
-};
 
 function TocItem({ href, label }: { href: string; label: string }) {
   return (
@@ -19,20 +13,24 @@ function TocItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-export default function TermsPage() {
+export default function TermsPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   return (
     <main className="min-h-screen bg-[#0a0a1a]">
       {/* Header */}
       <header className="border-b border-indigo-500/10 bg-[#0a0a1a]/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white font-bold text-lg hover:text-indigo-300 transition-colors">
+          <Link href={`/${locale}`} className="text-white font-bold text-lg hover:text-indigo-300 transition-colors">
             AlphaSync
           </Link>
           <nav className="flex items-center gap-6 text-sm">
-            <Link href="/privacy" className="text-gray-400 hover:text-gray-200 transition-colors">
+            <Link href={`/${locale}/privacy`} className="text-gray-400 hover:text-gray-200 transition-colors">
               Privacy Policy
             </Link>
-            <Link href="/" className="text-gray-400 hover:text-gray-200 transition-colors">
+            <Link href={`/${locale}`} className="text-gray-400 hover:text-gray-200 transition-colors">
               Home
             </Link>
           </nav>
@@ -219,12 +217,12 @@ export default function TermsPage() {
             <ul className="list-disc list-inside space-y-2 text-sm">
               <li><strong>Our IP:</strong> The Service, including its software, design, branding, and reports, is owned by AlphaSync or its licensors.</li>
               <li><strong>License to you:</strong> We grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Service for your personal, non-commercial investment research.</li>
-              <li><strong>Your data:</strong> You retain ownership of any personal data you submit. See our <Link href="/privacy" className="text-indigo-400 hover:text-indigo-300 underline">Privacy Policy</Link>.</li>
+              <li><strong>Your data:</strong> You retain ownership of any personal data you submit. See our <Link href={`/${locale}/privacy`} className="text-indigo-400 hover:text-indigo-300 underline">Privacy Policy</Link>.</li>
               <li><strong>Feedback:</strong> If you provide suggestions or feedback, we may use them without restriction or compensation.</li>
             </ul>
           </section>
 
-          {/* Section 10 */}
+          {/* Sections 10-17 */}
           <section id="section-10">
             <h2 className="text-xl font-bold text-white mb-4">10. Third-Party Services and Data</h2>
             <p className="mb-3 text-sm">The Service relies on third-party providers. By using the Service you acknowledge:</p>
@@ -261,7 +259,6 @@ export default function TermsPage() {
             <p className="text-sm">We are not responsible for the availability, accuracy, or content of third-party services.</p>
           </section>
 
-          {/* Section 11 */}
           <section id="section-11">
             <h2 className="text-xl font-bold text-white mb-4">11. Disclaimers</h2>
             <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/10 mb-3">
@@ -277,7 +274,6 @@ export default function TermsPage() {
             <p className="text-sm">Reports are intended for <strong>educational and informational purposes only</strong> and should not be the sole basis for any investment decision.</p>
           </section>
 
-          {/* Section 12 */}
           <section id="section-12">
             <h2 className="text-xl font-bold text-white mb-4">12. Limitation of Liability</h2>
             <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/10 mb-3">
@@ -290,7 +286,6 @@ export default function TermsPage() {
             <p className="text-sm">Some U.S. states do not allow the exclusion or limitation of certain damages; in those states the limitations above apply to the maximum extent permitted by applicable law.</p>
           </section>
 
-          {/* Section 13 */}
           <section id="section-13">
             <h2 className="text-xl font-bold text-white mb-4">13. Indemnification</h2>
             <p className="text-sm">
@@ -298,7 +293,6 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 14 */}
           <section id="section-14">
             <h2 className="text-xl font-bold text-white mb-4">14. Termination</h2>
             <ul className="list-disc list-inside space-y-2 text-sm">
@@ -309,7 +303,6 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 15 */}
           <section id="section-15">
             <h2 className="text-xl font-bold text-white mb-4">15. Changes to These Terms</h2>
             <p className="text-sm">
@@ -317,7 +310,6 @@ export default function TermsPage() {
             </p>
           </section>
 
-          {/* Section 16 */}
           <section id="section-16">
             <h2 className="text-xl font-bold text-white mb-4">16. Governing Law and Dispute Resolution</h2>
             <ul className="list-disc list-inside space-y-2 text-sm">
@@ -328,7 +320,6 @@ export default function TermsPage() {
             </ul>
           </section>
 
-          {/* Section 17 */}
           <section id="section-17">
             <h2 className="text-xl font-bold text-white mb-4">17. Contact</h2>
             <div className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10">
@@ -345,7 +336,7 @@ export default function TermsPage() {
         <div className="mt-16 pt-8 border-t border-indigo-500/10 text-center">
           <p className="text-gray-500 text-sm">
             &copy; 2026 AlphaSync. All rights reserved. |{" "}
-            <Link href="/privacy" className="text-indigo-400 hover:text-indigo-300 underline">Privacy Policy</Link>
+            <Link href={`/${locale}/privacy`} className="text-indigo-400 hover:text-indigo-300 underline">Privacy Policy</Link>
           </p>
         </div>
       </div>

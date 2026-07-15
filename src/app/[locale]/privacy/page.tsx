@@ -1,10 +1,4 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Privacy Policy — AlphaSync",
-  description: "AlphaSync Privacy Policy. Learn how we collect, use, and protect your personal information.",
-};
 
 function TocItem({ href, label }: { href: string; label: string }) {
   return (
@@ -19,20 +13,24 @@ function TocItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-export default function PrivacyPage() {
+export default function PrivacyPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
   return (
     <main className="min-h-screen bg-[#0a0a1a]">
       {/* Header */}
       <header className="border-b border-indigo-500/10 bg-[#0a0a1a]/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="text-white font-bold text-lg hover:text-indigo-300 transition-colors">
+          <Link href={`/${locale}`} className="text-white font-bold text-lg hover:text-indigo-300 transition-colors">
             AlphaSync
           </Link>
           <nav className="flex items-center gap-6 text-sm">
-            <Link href="/terms" className="text-gray-400 hover:text-gray-200 transition-colors">
+            <Link href={`/${locale}/terms`} className="text-gray-400 hover:text-gray-200 transition-colors">
               Terms of Service
             </Link>
-            <Link href="/" className="text-gray-400 hover:text-gray-200 transition-colors">
+            <Link href={`/${locale}`} className="text-gray-400 hover:text-gray-200 transition-colors">
               Home
             </Link>
           </nav>
@@ -190,7 +188,7 @@ export default function PrivacyPage() {
             </ul>
           </section>
 
-          {/* Section 4 */}
+          {/* Sections 4-14 - keep original English content */}
           <section id="section-4">
             <h2 className="text-xl font-bold text-white mb-4">4. How We Use Your Information</h2>
             <div className="overflow-x-auto mb-4">
@@ -232,7 +230,6 @@ export default function PrivacyPage() {
             </div>
           </section>
 
-          {/* Section 5 */}
           <section id="section-5">
             <h2 className="text-xl font-bold text-white mb-4">5. How We Disclose Information</h2>
 
@@ -279,7 +276,6 @@ export default function PrivacyPage() {
             <p className="text-sm">We will disclose your information for any other purpose only with your affirmative consent.</p>
           </section>
 
-          {/* Section 6 */}
           <section id="section-6">
             <h2 className="text-xl font-bold text-white mb-4">6. Cookies and Similar Technologies</h2>
             <div className="overflow-x-auto mb-4">
@@ -323,7 +319,6 @@ export default function PrivacyPage() {
             <p className="text-sm">We do <strong>not</strong> use advertising cookies, third-party tracking pixels, or cross-site behavioral tracking.</p>
           </section>
 
-          {/* Section 7 */}
           <section id="section-7">
             <h2 className="text-xl font-bold text-white mb-4">7. Data Storage and Security</h2>
             <ul className="list-disc list-inside space-y-2 text-sm">
@@ -339,7 +334,6 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 8 */}
           <section id="section-8">
             <h2 className="text-xl font-bold text-white mb-4">8. Data Retention</h2>
             <div className="overflow-x-auto mb-4">
@@ -371,7 +365,6 @@ export default function PrivacyPage() {
             </div>
           </section>
 
-          {/* Section 9 */}
           <section id="section-9">
             <h2 className="text-xl font-bold text-white mb-4">9. Your Rights (CCPA / CPRA and Other U.S. State Laws)</h2>
             <p className="mb-4 text-sm">
@@ -402,7 +395,6 @@ export default function PrivacyPage() {
             <p className="text-sm">If we deny your request and you are a California resident, you may appeal by replying to our denial email within 30 days.</p>
           </section>
 
-          {/* Section 10 */}
           <section id="section-10">
             <h2 className="text-xl font-bold text-white mb-4">10. Do Not Track / Global Privacy Controls</h2>
             <p className="text-sm">
@@ -410,7 +402,6 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 11 */}
           <section id="section-11">
             <h2 className="text-xl font-bold text-white mb-4">11. Children</h2>
             <p className="text-sm">
@@ -418,7 +409,6 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 12 */}
           <section id="section-12">
             <h2 className="text-xl font-bold text-white mb-4">12. International Visitors</h2>
             <p className="text-sm">
@@ -429,7 +419,6 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 13 */}
           <section id="section-13">
             <h2 className="text-xl font-bold text-white mb-4">13. Changes to This Policy</h2>
             <p className="text-sm">
@@ -437,7 +426,6 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          {/* Section 14 */}
           <section id="section-14">
             <h2 className="text-xl font-bold text-white mb-4">14. Contact</h2>
             <div className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10">
@@ -457,7 +445,7 @@ export default function PrivacyPage() {
         <div className="mt-16 pt-8 border-t border-indigo-500/10 text-center">
           <p className="text-gray-500 text-sm">
             &copy; 2026 AlphaSync. All rights reserved. |{" "}
-            <Link href="/terms" className="text-indigo-400 hover:text-indigo-300 underline">Terms of Service</Link>
+            <Link href={`/${locale}/terms`} className="text-indigo-400 hover:text-indigo-300 underline">Terms of Service</Link>
           </p>
         </div>
       </div>

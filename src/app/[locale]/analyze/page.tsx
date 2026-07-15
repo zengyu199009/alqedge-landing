@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { submitAnalysis } from "@/lib/api";
 import { Button } from "@/components/ui/button";
@@ -25,16 +26,18 @@ import {
 import { toast } from "sonner";
 
 const ANALYSIS_TYPES = [
-  { value: "comprehensive", label: "Comprehensive (All)", description: "Full analysis combining fundamentals, technicals, and sentiment for a complete picture" },
-  { value: "fundamental", label: "Fundamental Analysis", description: "Deep dive into financial statements, revenue, earnings, and valuation metrics" },
-  { value: "technical", label: "Technical Analysis", description: "Price trends, support/resistance levels, RSI, MACD, and moving averages" },
-  { value: "sentiment", label: "Sentiment Analysis", description: "News sentiment, social media buzz, and market mood around the ticker" },
+  { value: "comprehensive", labelKey: "analyze.types.comprehensive.label", descriptionKey: "analyze.types.comprehensive.description" },
+  { value: "fundamental", labelKey: "analyze.types.fundamental.label", descriptionKey: "analyze.types.fundamental.description" },
+  { value: "technical", labelKey: "analyze.types.technical.label", descriptionKey: "analyze.types.technical.description" },
+  { value: "sentiment", labelKey: "analyze.types.sentiment.label", descriptionKey: "analyze.types.sentiment.description" },
 ];
 
 const EXAMPLE_TICKERS = ["AAPL", "MSFT", "NVDA"];
 
 export default function AnalyzePage() {
   const router = useRouter();
+  const t = useTranslations();
+  const locale = useLocale();
   const [ticker, setTicker] = useState("");
   const [analysisType, setAnalysisType] = useState("comprehensive");
   const [loading, setLoading] = useState(false);
@@ -72,15 +75,13 @@ export default function AnalyzePage() {
 
     const tickerClean = ticker.trim().toUpperCase();
     if (!tickerClean) {
-      setError("Please enter a stock ticker");
+      setError(t("analyze.errors.emptyTicker"));
       return;
     }
 
     // Simple ticker validation
     if (!/^[A-Z]{1,5}$/.test(tickerClean)) {
-      setError(
-        "Invalid ticker symbol. Enter 1-5 uppercase letters (e.g., AAPL, MSFT, GOOGL)"
-      );
+      setError(t("analyze.errors.invalidTicker"));
       return;
     }
 
@@ -94,7 +95,7 @@ export default function AnalyzePage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        router.push("/login?redirect=/analyze");
+        router.push(`/${locale}/login?redirect=/analyze`);
         return;
       }
 
@@ -104,9 +105,9 @@ export default function AnalyzePage() {
       });
 
       toast.success("Analysis started!");
-      router.push(`/analyze/${result.task_id}`);
+      router.push(`/${locale}/analyze/${result.task_id}`);
     } catch (err: any) {
-      const msg = err.message || "Failed to submit analysis";
+      const msg = err.message || t("analyze.errors.failedSubmit");
       setError(msg);
       toast.error(msg);
     } finally {
@@ -119,10 +120,10 @@ export default function AnalyzePage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            Stock Analysis
+            {t("analyze.title")}
           </h1>
           <p className="text-gray-400">
-            Enter a US stock ticker to get an AI-powered research report
+            {t("analyze.subtitle")}
           </p>
         </div>
 
@@ -130,12 +131,13 @@ export default function AnalyzePage() {
         {plan === "free" && analysesRemaining !== null && (
           <div className="mb-4 p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-sm">
             <span className="text-gray-400">
-              Free plan:{" "}
-              <span className="text-indigo-300 font-semibold">{analysesRemaining}</span>{" "}
-              {analysesRemaining === 1 ? "analysis" : "analyses"} remaining this month.
+              {t("analyze.freePlan", {
+                count: analysesRemaining,
+                analyses: analysesRemaining === 1 ? t("analyze.analysisLabel") : t("analyze.analysesLabel"),
+              })}
             </span>
-            <Link href="/pricing" className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 ml-2">
-              Upgrade to Pro
+            <Link href={`/${locale}/pricing`} className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 ml-2">
+              {t("analyze.upgradePro")}
             </Link>
           </div>
         )}
@@ -143,35 +145,34 @@ export default function AnalyzePage() {
         <Card className="bg-[#12122a] border-indigo-500/10">
           <CardHeader>
             <CardTitle className="text-lg text-white">
-              New Analysis Request
+              {t("analyze.newRequest")}
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Our 3 AI analysts will analyze SEC filings, market data, and
-              news sentiment
+              {t("analyze.newRequestDesc")}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="ticker" className="text-gray-300">
-                  Stock Ticker
+                  {t("analyze.tickerLabel")}
                 </Label>
                 <Input
                   id="ticker"
-                  placeholder="e.g., AAPL, MSFT, GOOGL"
+                  placeholder={t("analyze.tickerPlaceholder")}
                   value={ticker}
                   onChange={(e) => setTicker(e.target.value.toUpperCase())}
                   className="bg-[#1e1e3a] border-indigo-500/20 text-white placeholder-gray-500 focus:border-indigo-400 text-lg font-mono uppercase"
                   maxLength={5}
                 />
                 <p className="text-xs text-gray-500">
-                  Enter a US stock ticker symbol (1-5 characters)
+                  {t("analyze.tickerHint")}
                 </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="analysis-type" className="text-gray-300">
-                  Analysis Type
+                  {t("analyze.analysisType")}
                 </Label>
                 <Select
                   value={analysisType}
@@ -181,7 +182,7 @@ export default function AnalyzePage() {
                     id="analysis-type"
                     className="bg-[#1e1e3a] border-indigo-500/20 text-white"
                   >
-                    <SelectValue placeholder="Select analysis type" />
+                    <SelectValue placeholder={t("analyze.analysisTypePlaceholder")} />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1e1e3a] border-indigo-500/20 text-white">
                     {ANALYSIS_TYPES.map((type) => (
@@ -191,24 +192,23 @@ export default function AnalyzePage() {
                         className="hover:bg-indigo-500/10"
                       >
                         <div className="flex flex-col gap-0.5">
-                          <span>{type.label}</span>
+                          <span>{t(type.labelKey)}</span>
                           <span className="text-[10px] text-gray-500 font-normal">
-                            {type.description}
+                            {t(type.descriptionKey)}
                           </span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {/* Tooltip-style description for selected type */}
                 <p className="text-xs text-gray-500 italic">
-                  {ANALYSIS_TYPES.find((t) => t.value === analysisType)?.description}
+                  {t(ANALYSIS_TYPES.find((t) => t.value === analysisType)?.descriptionKey || "")}
                 </p>
               </div>
 
               {/* Example tickers */}
               <div>
-                <p className="text-xs text-gray-500 mb-2">Try a ticker:</p>
+                <p className="text-xs text-gray-500 mb-2">{t("analyze.tryTicker")}</p>
                 <div className="flex gap-2">
                   {EXAMPLE_TICKERS.map((t) => (
                     <button
@@ -237,10 +237,10 @@ export default function AnalyzePage() {
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-                    Submitting...
+                    {t("analyze.submitting")}
                   </span>
                 ) : (
-                  "Start Analysis"
+                  t("analyze.submit")
                 )}
               </Button>
             </form>
@@ -251,26 +251,26 @@ export default function AnalyzePage() {
         <div className="grid md:grid-cols-3 gap-4 mt-8">
           <div className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10">
             <div className="text-indigo-400 font-semibold text-sm mb-1">
-              ⏱ ~3 minutes
+              {t("analyze.infoCards.time.title")}
             </div>
             <p className="text-gray-500 text-xs">
-              Typical analysis time for comprehensive reports
+              {t("analyze.infoCards.time.desc")}
             </p>
           </div>
           <div className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10">
             <div className="text-indigo-400 font-semibold text-sm mb-1">
-              📊 4 data sources
+              {t("analyze.infoCards.sources.title")}
             </div>
             <p className="text-gray-500 text-xs">
-              SEC EDGAR, Finnhub, FRED, and news sentiment
+              {t("analyze.infoCards.sources.desc")}
             </p>
           </div>
           <div className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10">
             <div className="text-indigo-400 font-semibold text-sm mb-1">
-              🤖 3 AI agents
+              {t("analyze.infoCards.agents.title")}
             </div>
             <p className="text-gray-500 text-xs">
-              Fundamental, technical, and sentiment in parallel
+              {t("analyze.infoCards.agents.desc")}
             </p>
           </div>
         </div>

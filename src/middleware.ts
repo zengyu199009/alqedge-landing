@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import createMiddleware from "next-intl/middleware";
+import { locales, defaultLocale } from "@/navigation";
 
 // US-only landing page middleware
 // Blocks non-US visitors with a redirect to /explain
@@ -8,25 +10,53 @@ import { updateSession } from "@/lib/supabase/middleware";
 const US_ONLY = true;
 const US_COUNTRY_CODE = "US";
 
+// Create the next-intl middleware for locale handling
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: "always",
+});
+
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
   // Skip middleware for static files
   if (
-    request.nextUrl.pathname.startsWith("/_next") ||
-    request.nextUrl.pathname.startsWith("/favicon") ||
-    request.nextUrl.pathname.startsWith("/images") ||
-    request.nextUrl.pathname === "/robots.txt"
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/images") ||
+    pathname === "/robots.txt" ||
+    pathname === "/manifest.json" ||
+    pathname === "/sw.js"
   ) {
     return NextResponse.next();
   }
 
-  // Handle Supabase auth session
+  // The explain page must be accessible without locale prefix
+  // (GeoIP redirect from middleware sends users here)
+  if (pathname === "/explain") {
+    return NextResponse.next();
+  }
+
+  // Handle locale detection and redirect via next-intl
+  // This will redirect root / to /en or /zh based on browser detection
+  const intlResponse = intlMiddleware(request);
+
+  // If next-intl redirects (e.g., / -> /en), return that redirect
+  // But if it's a rewrite (stays on same path), continue with auth
+  if (intlResponse.status === 307 || intlResponse.status === 308) {
+    return intlResponse;
+  }
+
+  // Handle Supabase auth session on the (possibly rewritten) path
   const supabaseResponse = await updateSession(request);
 
   // Skip GeoIP for legal and explain pages to avoid redirect loops
+  const pathWithoutLocale = pathname.replace(/^\/(en|zh)/, "");
   if (
-    request.nextUrl.pathname.startsWith("/explain") ||
-    request.nextUrl.pathname.startsWith("/terms") ||
-    request.nextUrl.pathname.startsWith("/privacy")
+    pathWithoutLocale.startsWith("/explain") ||
+    pathWithoutLocale.startsWith("/terms") ||
+    pathWithoutLocale.startsWith("/privacy")
   ) {
     return supabaseResponse;
   }

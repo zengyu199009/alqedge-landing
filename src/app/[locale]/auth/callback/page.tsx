@@ -2,12 +2,15 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslations();
+  const locale = useLocale();
   const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -34,7 +37,7 @@ function CallbackHandler() {
 
         // Short delay so the user sees the success state
         setTimeout(() => {
-          router.push(redirectTo);
+          router.push(`/${locale}${redirectTo}`);
           router.refresh();
         }, 1500);
       } catch (err: any) {
@@ -44,7 +47,7 @@ function CallbackHandler() {
     };
 
     handleCallback();
-  }, [router, searchParams]);
+  }, [router, searchParams, locale]);
 
   return (
     <Card className="bg-[#12122a] border-indigo-500/10">
@@ -52,9 +55,9 @@ function CallbackHandler() {
         {status === "processing" && (
           <>
             <div className="animate-spin w-10 h-10 border-2 border-indigo-400 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-gray-300 font-medium">Completing sign-in...</p>
+            <p className="text-gray-300 font-medium">{t("auth.callback.processing")}</p>
             <p className="text-gray-500 text-sm mt-2">
-              You will be redirected automatically.
+              {t("auth.callback.processingHint")}
             </p>
           </>
         )}
@@ -76,9 +79,9 @@ function CallbackHandler() {
                 />
               </svg>
             </div>
-            <p className="text-gray-300 font-medium">Signed in successfully!</p>
+            <p className="text-gray-300 font-medium">{t("auth.callback.success")}</p>
             <p className="text-gray-500 text-sm mt-2">
-              Redirecting to dashboard...
+              {t("auth.callback.successHint")}
             </p>
           </>
         )}
@@ -101,14 +104,14 @@ function CallbackHandler() {
               </svg>
             </div>
             <p className="text-red-400 font-medium mb-2">
-              Authentication failed
+              {t("auth.callback.error")}
             </p>
             <p className="text-gray-400 text-sm mb-4">{errorMessage}</p>
             <button
-              onClick={() => router.push("/login")}
+              onClick={() => router.push(`/${locale}/login`)}
               className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 text-sm"
             >
-              Back to sign in
+              {t("auth.callback.backToSignIn")}
             </button>
           </>
         )}
@@ -118,6 +121,8 @@ function CallbackHandler() {
 }
 
 export default function AuthCallbackPage() {
+  const t = useTranslations();
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12 bg-[#0a0a1a]">
       <div className="w-full max-w-md">

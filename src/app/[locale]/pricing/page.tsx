@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,102 +17,6 @@ interface PricingPlan {
   highlighted?: boolean;
   badge?: string;
 }
-
-const MONTHLY_PLANS: PricingPlan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Get started with basic analysis",
-    features: [
-      "5 stock analyses per 30 days",
-      "Fundamental analysis only",
-      "Basic report format",
-      "Email support",
-    ],
-    cta: "Get Started Free",
-    href: "/register?plan=free",
-  },
-  {
-    name: "Pro",
-    price: "$19",
-    description: "For serious investors",
-    features: [
-      "60 analyses per hour (soft cap)",
-      "All analysis types",
-      "Full detailed reports with citations",
-      "7-day free trial",
-      "Priority email support",
-    ],
-    cta: "Start Free Trial",
-    href: "/register?plan=pro",
-    highlighted: true,
-    badge: "Most Popular",
-  },
-  {
-    name: "Team",
-    price: "$49",
-    description: "For teams and small funds",
-    features: [
-      "Up to 5 seats",
-      "300 analyses per hour",
-      "All analysis types",
-      "Full detailed reports with citations",
-      "Shared watchlists",
-      "Priority support",
-    ],
-    cta: "Contact Sales",
-    href: "mailto:support@alqedge.com",
-  },
-];
-
-const ANNUAL_PLANS: PricingPlan[] = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Get started with basic analysis",
-    features: [
-      "5 stock analyses per 30 days",
-      "Fundamental analysis only",
-      "Basic report format",
-      "Email support",
-    ],
-    cta: "Get Started Free",
-    href: "/register?plan=free",
-  },
-  {
-    name: "Pro",
-    price: "$190",
-    description: "For serious investors — save ~17%",
-    features: [
-      "60 analyses per hour (soft cap)",
-      "All analysis types",
-      "Full detailed reports with citations",
-      "7-day free trial",
-      "Priority email support",
-      "Billed annually ($190/year)",
-    ],
-    cta: "Start Free Trial",
-    href: "/register?plan=pro",
-    highlighted: true,
-    badge: "Best Value",
-  },
-  {
-    name: "Team",
-    price: "$490",
-    description: "For teams and small funds — save ~17%",
-    features: [
-      "Up to 5 seats",
-      "300 analyses per hour",
-      "All analysis types",
-      "Full detailed reports with citations",
-      "Shared watchlists",
-      "Priority support",
-      "Billed annually ($490/year)",
-    ],
-    cta: "Contact Sales",
-    href: "mailto:support@alqedge.com",
-  },
-];
 
 function CheckIcon() {
   return (
@@ -132,8 +37,70 @@ function CheckIcon() {
 }
 
 export default function PricingPage() {
+  const t = useTranslations();
+  const locale = useLocale();
   const [annual, setAnnual] = useState(false);
   const [spotsRemaining] = useState(42); // Simulated — replace with real API call
+
+  const p = t.raw("pricing.plans");
+
+  const MONTHLY_PLANS: PricingPlan[] = [
+    {
+      name: p.free.name,
+      price: p.free.price,
+      description: p.free.description,
+      features: p.free.features,
+      cta: p.free.cta,
+      href: `/${locale}/register?plan=free`,
+    },
+    {
+      name: p.pro.name,
+      price: p.pro.price,
+      description: p.pro.description,
+      features: p.pro.features,
+      cta: p.pro.cta,
+      href: `/${locale}/register?plan=pro`,
+      highlighted: true,
+      badge: p.pro.badge,
+    },
+    {
+      name: p.team.name,
+      price: p.team.price,
+      description: p.team.description,
+      features: p.team.features,
+      cta: p.team.cta,
+      href: `mailto:support@alqedge.com`,
+    },
+  ];
+
+  const ANNUAL_PLANS: PricingPlan[] = [
+    {
+      name: p.free.name,
+      price: p.free.price,
+      description: p.free.description,
+      features: p.free.features,
+      cta: p.free.cta,
+      href: `/${locale}/register?plan=free`,
+    },
+    {
+      name: p.pro.name,
+      price: p.pro.annual.price,
+      description: p.pro.annual.description,
+      features: p.pro.annual.features,
+      cta: p.pro.cta,
+      href: `/${locale}/register?plan=pro`,
+      highlighted: true,
+      badge: p.pro.annual.badge,
+    },
+    {
+      name: p.team.name,
+      price: p.team.annual.price,
+      description: p.team.annual.description,
+      features: p.team.annual.features,
+      cta: p.team.cta,
+      href: `mailto:support@alqedge.com`,
+    },
+  ];
 
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-[#0a0a1a]">
@@ -141,22 +108,19 @@ export default function PricingPage() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block mb-4 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm font-medium">
-            🎉 Early Bird Pricing — {spotsRemaining} of 50 spots remaining
+            {t("pricing.earlyBird", { spots: spotsRemaining })}
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Simple, Transparent Pricing
+            {t("pricing.title")}
           </h1>
           <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-            First <span className="text-amber-300 font-bold">50</span> Pro
-            subscribers lock in{" "}
-            <span className="text-amber-300 font-bold">$9/month forever</span>.
-            Regular price: $19/month after the first 50.
+            {t("pricing.subtitle", { count: 50, price: "$9/month", regular: "$19/month" })}
           </p>
           {/* Urgency bar */}
           <div className="max-w-md mx-auto mt-6">
             <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Spots filled: {50 - spotsRemaining}</span>
-              <span>Remaining: {spotsRemaining}</span>
+              <span>{t("pricing.spotsFilled", { filled: 50 - spotsRemaining })}</span>
+              <span>{t("pricing.spotsRemaining", { remaining: spotsRemaining })}</span>
             </div>
             <div className="w-full h-2 bg-[#1e1e3a] rounded-full overflow-hidden">
               <div
@@ -170,7 +134,7 @@ export default function PricingPage() {
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <span className={`text-sm ${!annual ? "text-white font-medium" : "text-gray-500"}`}>
-            Monthly
+            {t("pricing.monthly")}
           </span>
           <button
             type="button"
@@ -188,10 +152,10 @@ export default function PricingPage() {
             />
           </button>
           <span className={`text-sm ${annual ? "text-white font-medium" : "text-gray-500"}`}>
-            Annual
+            {t("pricing.annual")}
           </span>
           {annual && (
-            <span className="text-xs text-emerald-400 font-medium">Save ~17%</span>
+            <span className="text-xs text-emerald-400 font-medium">{t("pricing.savePercent")}</span>
           )}
         </div>
 
@@ -222,7 +186,7 @@ export default function PricingPage() {
                   <span className="text-4xl font-bold text-white">
                     {plan.price}
                   </span>
-                  <span className="text-gray-400 ml-1">/month</span>
+                  <span className="text-gray-400 ml-1">{t("pricing.perMonth")}</span>
                 </div>
                 <CardDescription className="text-gray-400 mt-2">
                   {plan.description}
@@ -231,7 +195,7 @@ export default function PricingPage() {
 
               <CardContent>
                 <ul className="space-y-3">
-                  {plan.features.map((feature, i) => (
+                  {plan.features.map((feature: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
                       <CheckIcon />
                       <span>{feature}</span>
@@ -240,7 +204,7 @@ export default function PricingPage() {
                 </ul>
               </CardContent>
 
-              <CardFooter>
+              <CardFooter className="flex-col">
                 {plan.href.startsWith("mailto:") ? (
                   <a href={plan.href} className="w-full">
                     <Button
@@ -266,7 +230,7 @@ export default function PricingPage() {
                 )}
                 {plan.highlighted && (
                   <p className="text-xs text-gray-500 text-center mt-2">
-                    Cancel anytime. No charge.
+                    {t("pricing.cancelAnytime")}
                   </p>
                 )}
               </CardFooter>
@@ -277,28 +241,11 @@ export default function PricingPage() {
         {/* FAQ */}
         <div className="mt-20 max-w-3xl mx-auto">
           <h2 className="text-2xl font-bold text-white text-center mb-8">
-            Frequently Asked Questions
+            {t("pricing.faqTitle")}
           </h2>
 
           <div className="space-y-4">
-            {[
-              {
-                q: "Can I cancel anytime?",
-                a: "Yes. You can cancel your subscription at any time from your account settings. If you cancel during the 7-day free trial, you won't be charged.",
-              },
-              {
-                q: "What payment methods do you accept?",
-                a: "Payments are processed securely by Waffo Pancake (Waffo.com Limited), our Merchant of Record. All major credit cards are accepted.",
-              },
-              {
-                q: "Is there a money-back guarantee?",
-                a: "Yes. First-time Pro subscribers get a 7-day money-back guarantee. Contact support within 7 days of your first charge if you've used fewer than 3 analyses.",
-              },
-              {
-                q: "What happens to my data if I cancel?",
-                a: "Your account data is retained for 30 days after cancellation. After that, it is deleted in accordance with our Privacy Policy.",
-              },
-            ].map((faq, i) => (
+            {(t.raw("pricing.faq") as Array<{q: string; a: string}>).map((faq: {q: string; a: string}, i: number) => (
               <div
                 key={i}
                 className="p-4 rounded-lg bg-[#12122a] border border-indigo-500/10"
