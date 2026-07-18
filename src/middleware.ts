@@ -7,7 +7,7 @@ import { locales, defaultLocale } from "@/navigation";
 // Blocks non-US visitors with a redirect to /explain
 // Uses Vercel Edge / GeoIP headers
 
-const US_ONLY = true;
+const US_ONLY = false;
 const US_COUNTRY_CODE = "US";
 
 // Create the next-intl middleware for locale handling
