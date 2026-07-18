@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "build:cf": "npx opennextjs-cloudflare build && cp .open-next/worker.js .open-next/_worker.js",
+    "deploy:cf": "npm run build:cf && npx wrangler pages deploy .open-next --project-name alqedge-landing --bundle",
     "start": "next start",
     "lint": "next lint"
   },
