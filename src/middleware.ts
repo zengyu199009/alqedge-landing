@@ -3,12 +3,17 @@ import { updateSession } from "@/lib/supabase/middleware";
 import createMiddleware from "next-intl/middleware";
 import { locales, defaultLocale } from "@/navigation";
 
-// US-only landing page middleware
-// Blocks non-US visitors with a redirect to /explain
-// Uses Vercel Edge / GeoIP headers
+// 制裁国家列表 — 这些国家的用户将被限制访问
+// 基于 US 制裁法规（OFAC）
+const SANCTIONED_COUNTRIES = new Set([
+  "CU", // 古巴
+  "IR", // 伊朗
+  "KP", // 朝鲜
+  "SY", // 叙利亚
+  "RU", // 俄罗斯
+]);
 
-const US_ONLY = false;
-const US_COUNTRY_CODE = "US";
+// 克里米亚地区不属于独立国家代码，通过 CF-IPCountry 无法单独识别
 
 // Create the next-intl middleware for locale handling
 const intlMiddleware = createMiddleware({
@@ -61,18 +66,17 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  if (US_ONLY) {
-    // Vercel provides geo information via request headers
-    const country =
-      request.headers.get("x-vercel-ip-country") ||
-      request.headers.get("cf-ipcountry") ||
-      "";
+  // 制裁国家限制
+  // 通过 Cloudflare 或 Vercel 的 GeoIP header 检测访客国家
+  const country =
+    request.headers.get("x-vercel-ip-country") ||
+    request.headers.get("cf-ipcountry") ||
+    "";
 
-    // If we can detect the country and it's not US, redirect
-    if (country && country !== US_COUNTRY_CODE) {
-      const url = new URL("/explain", request.url);
-      return NextResponse.redirect(url);
-    }
+  // 如果检测到国家且属于制裁国家列表，重定向到限制页面
+  if (country && SANCTIONED_COUNTRIES.has(country)) {
+    const url = new URL("/explain", request.url);
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;
