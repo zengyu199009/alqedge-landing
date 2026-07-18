@@ -1,11 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"main": ".open-next/worker.js",
 	"name": "alqedge-landing",
 	"compatibility_date": "2025-12-01",
-	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-	"assets": {
-		"directory": ".open-next/assets",
-		"binding": "ASSETS"
-	}
+	"compatibility_flags": ["nodejs_compat"],
+	"pages_build_output_dir": ".open-next"
 }
