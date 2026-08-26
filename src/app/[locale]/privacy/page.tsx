@@ -13,11 +13,12 @@ function TocItem({ href, label }: { href: string; label: string }) {
   );
 }
 
-export default function PrivacyPage({
-  params: { locale },
+export default async function PrivacyPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   return (
     <main className="min-h-screen bg-[#0a0a1a]">
       {/* Header */}
