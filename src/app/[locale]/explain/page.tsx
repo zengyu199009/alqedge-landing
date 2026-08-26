@@ -1,8 +1,9 @@
-export default function ExplainPage({
-  params: { locale },
+export default async function ExplainPage({
+  params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
   return (
     <main className="min-h-screen bg-[#0a0a1a] flex items-center justify-center px-6">
       <div className="max-w-lg text-center">
