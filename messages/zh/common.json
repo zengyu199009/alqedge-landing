@@ -14,7 +14,8 @@
     "signIn": "登录",
     "signOut": "退出登录",
     "getStarted": "开始使用",
-    "account": "账户"
+    "account": "账户",
+    "blog": "博客"
   },
   "hero": {
     "title": "AI 驱动的美股分析",

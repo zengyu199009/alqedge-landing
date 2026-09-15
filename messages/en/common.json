@@ -14,7 +14,8 @@
     "signIn": "Sign In",
     "signOut": "Sign Out",
     "getStarted": "Get Started",
-    "account": "Account"
+    "account": "Account",
+    "blog": "Blog"
   },
   "hero": {
     "title": "AI-Powered US Stock Analysis",

@@ -85,6 +85,12 @@ export default function Navbar() {
                 >
                   {t("nav.pricing")}
                 </Link>
+                <Link
+                  href={`/${locale}/blog`}
+                  className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                >
+                  {t("nav.blog")}
+                </Link>
               </>
             ) : (
               <>
@@ -117,6 +123,16 @@ export default function Navbar() {
                   }`}
                 >
                   {t("nav.pricing")}
+                </Link>
+                <Link
+                  href={`/${locale}/blog`}
+                  className={`text-sm transition-colors ${
+                    pathWithoutLocale.startsWith("/blog")
+                      ? "text-indigo-300"
+                      : "text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  {t("nav.blog")}
                 </Link>
               </>
             )}
@@ -250,6 +266,13 @@ export default function Navbar() {
                   >
                     {t("nav.pricing")}
                   </Link>
+                  <Link
+                    href={`/${locale}/blog`}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm text-gray-400 hover:text-gray-200 py-2"
+                  >
+                    {t("nav.blog")}
+                  </Link>
                 </>
               ) : (
                 <>
@@ -273,6 +296,13 @@ export default function Navbar() {
                     className="text-sm text-gray-400 hover:text-gray-200 py-2"
                   >
                     {t("nav.pricing")}
+                  </Link>
+                  <Link
+                    href={`/${locale}/blog`}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-sm text-gray-400 hover:text-gray-200 py-2"
+                  >
+                    {t("nav.blog")}
                   </Link>
                 </>
               )}
