@@ -1,10 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
+import { locales } from "@/navigation";
 
 // 文章详情页：静态渲染（generateStaticParams 预生成所有文章）
+// 注意：需返回完整动态段参数（locale + slug），否则 Next.js 15 会 404/500
 export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+  return getAllPosts().flatMap((post) =>
+    locales.map((locale) => ({ locale, slug: post.slug }))
+  );
 }
 
 export default async function BlogPostPage({
