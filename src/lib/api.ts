@@ -3,10 +3,28 @@ import { toUserFriendlyError } from "./errors";
 
 const API_URL = "https://api.alqedge.com/api/v1";
 
+// 从 Supabase cookie (sb-<ref>-auth-token) 解析 access_token 的兜底函数。
+// 该应用登录后 session 由服务端 middleware 写入 cookie (createServerClient),
+// 而 client 端 getSession() 读 localStorage/memory, 可能取不到 → 需兜底读 cookie。
+function readAccessTokenFromCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const m = document.cookie.match(/sb-[^=]+-auth-token=([^;]+)/);
+  if (!m) return null;
+  try {
+    let raw = m[1];
+    if (raw.startsWith("base64-")) raw = raw.slice(7);
+    const data = JSON.parse(atob(raw));
+    return typeof data.access_token === "string" ? data.access_token : null;
+  } catch {
+    return null;
+  }
+}
+
 async function getAuthHeaders(): Promise<HeadersInit> {
   const supabase = createClient();
   const { data: { session } } = await supabase.auth.getSession();
-  return session ? { Authorization: `Bearer ${session.access_token}` } : {};
+  const token = session?.access_token || readAccessTokenFromCookie();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export interface AnalyzeRequest {
@@ -241,7 +259,9 @@ export function createAnalysisEventSource(taskId: string): AnalysisEventSource {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        // 按空行切分 SSE 事件，取 data: 行拼成 message.data
+        // 按空行切分 SSE 事件。后端 (sse-starlette) 用 CRLF(\r\n) 分隔,
+        // 兼容 \r\n\r\n 与 \n\n 两种空行。取 data: 行拼成 message.data。
+        buffer = buffer.replace(/\r\n/g, "\n");
         let idx;
         while ((idx = buffer.indexOf("\n\n")) !== -1) {
           const chunk = buffer.slice(0, idx);
