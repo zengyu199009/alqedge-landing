@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { createAnalysisEventSource, getAnalysisResult, submitAnalysis, cancelAnalysis, type AnalysisResult } from "@/lib/api";
+import { createAnalysisEventSource, getAnalysisResult, submitAnalysis, cancelAnalysis, type AnalysisResult, type AnalysisEventSource } from "@/lib/api";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -77,7 +77,7 @@ export default function AnalysisResultPage() {
   const [retrying, setRetrying] = useState(false);
   const [estimatedRemaining, setEstimatedRemaining] = useState<string>("");
   const [cancelling, setCancelling] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
+  const eventSourceRef = useRef<AnalysisEventSource | null>(null);
   const startTimeRef = useRef<number>(Date.now());
   const stageStartRef = useRef<number>(Date.now());
 
@@ -116,7 +116,7 @@ export default function AnalysisResultPage() {
     }, 5 * 60 * 1000);
 
     // Try to connect via SSE
-    let es: EventSource;
+    let es: AnalysisEventSource;
     try {
       es = createAnalysisEventSource(taskId);
       eventSourceRef.current = es;

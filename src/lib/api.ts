@@ -130,10 +130,70 @@ export async function getAnalysisResult(
 }
 
 /**
- * Create an SSE EventSource for real-time progress updates.
+ * EventSource-compatible handle returned by createAnalysisEventSource.
+ * 实现改用 fetch + ReadableStream 读 SSE（而非原生 EventSource），
+ * 因为原生 EventSource 无法携带 Authorization 请求头（JWT），
+ * 会导致后端 /stream 端点因无凭证返回 401 且绕过 CORS → 浏览器报 "Failed to fetch"/CORS 拦截。
  */
-export function createAnalysisEventSource(taskId: string): EventSource {
-  return new EventSource(`${API_URL}/analyze/${taskId}/stream`);
+export interface AnalysisEventSource {
+  onmessage: ((event: MessageEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  close: () => void;
+}
+
+/**
+ * Create an SSE stream for real-time progress updates, sending the JWT via fetch.
+ * 返回与 EventSource 兼容的句柄（onmessage/onerror/close），消费方用法不变。
+ */
+export function createAnalysisEventSource(taskId: string): AnalysisEventSource {
+  const controller = new AbortController();
+  const handle: AnalysisEventSource = {
+    onmessage: null,
+    onerror: null,
+    close: () => controller.abort(),
+  };
+
+  // 延迟到下一宏任务再发起请求，确保调用方先绑定 onmessage/onerror
+  // （原生 EventSource 同步返回，这里用 setTimeout(0) 模拟同步语义，避免丢事件）。
+  setTimeout(async () => {
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`${API_URL}/analyze/${taskId}/stream`, {
+        headers: { Accept: "text/event-stream", ...authHeaders },
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        handle.onerror?.(new Event("error"));
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        // 按空行切分 SSE 事件，取 data: 行拼成 message.data
+        let idx;
+        while ((idx = buffer.indexOf("\n\n")) !== -1) {
+          const chunk = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          const dataLines = chunk.split("\n").filter((l) => l.startsWith("data:"));
+          const data = dataLines.map((l) => l.slice(5).trim()).join("\n");
+          if (data) {
+            handle.onmessage?.(new MessageEvent("message", { data }));
+          }
+        }
+      }
+    } catch (err) {
+      // abort 触发的取消不视为错误（与 EventSource.close() 语义一致）
+      if (!controller.signal.aborted) {
+        handle.onerror?.(new Event("error"));
+      }
+    }
+  }, 0);
+
+  return handle;
 }
 
 /**
