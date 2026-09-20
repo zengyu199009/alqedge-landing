@@ -3,17 +3,20 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { createAnalysisEventSource, getAnalysisResult, submitAnalysis, cancelAnalysis, type AnalysisResult, type AnalysisEventSource } from "@/lib/api";
+import {
+  createAnalysisEventSource,
+  getReport,
+  cancelAnalysis,
+  type ReportResponse,
+  type ReportCitation,
+  type AnalysisEventSource,
+} from "@/lib/api";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import StockPriceChart from "@/components/StockPriceChart";
-import RevenueChart from "@/components/RevenueChart";
-import PEChart from "@/components/PEChart";
-import TechnicalChart from "@/components/TechnicalChart";
 
 const STAGE_LABELS: Record<string, string> = {
   queued: "Queued for processing",
@@ -34,6 +37,27 @@ const STAGE_ESTIMATES: Record<string, string> = {
   sentiment_analysis: "~45 seconds",
   synthesizing: "~30 seconds",
 };
+
+// 后端终态 status → 前端 status 映射
+// 后端契约: queued|running|partial|done|failed (contracts.md §三)
+// 前端渲染只认 pending|running|completed|failed, 需归一化。
+function normalizeStatus(s: string | undefined): "pending" | "running" | "completed" | "failed" {
+  switch (s) {
+    case "done":
+    case "partial":
+      return "completed";
+    case "failed":
+    case "failed_retryable":
+      return "failed";
+    case "running":
+      return "running";
+    case "queued":
+    case undefined:
+      return "pending";
+    default:
+      return "pending";
+  }
+}
 
 // Helper: format a citation URL into a readable label
 function formatCitationLabel(url: string): string {
@@ -60,6 +84,80 @@ function formatCitationLabel(url: string): string {
   }
 }
 
+function sourceLabel(source: string): string {
+  const map: Record<string, string> = {
+    SEC_10K: "SEC 10-K",
+    SEC_10Q: "SEC 10-Q",
+    SEC_8K: "SEC 8-K",
+    Finnhub: "Finnhub",
+    FRED: "FRED",
+    Reddit: "Reddit",
+  };
+  return map[source] || source;
+}
+
+function CitationList({ citations }: { citations?: ReportCitation[] | null }) {
+  if (!citations || citations.length === 0) return null;
+  return (
+    <div className="mt-4 pt-4 border-t border-indigo-500/10">
+      <p className="text-xs text-gray-500 mb-2">Citations:</p>
+      <ul className="space-y-1.5">
+        {citations.map((citation, ci) => (
+          <li key={ci} className="text-xs">
+            <span className="text-gray-500 mr-1.5">{sourceLabel(citation.source)}</span>
+            <a
+              href={citation.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 break-all"
+              title={citation.url}
+            >
+              {formatCitationLabel(citation.url)}
+            </a>
+            {citation.excerpt && (
+              <p className="text-gray-500 mt-0.5 italic line-clamp-2">{citation.excerpt}</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function IndicatorBadges({ indicators }: { indicators?: { rsi_14?: number; ma_50?: number; ma_200?: number; macd_signal?: string } | null }) {
+  if (!indicators) return null;
+  const macdColor =
+    indicators.macd_signal === "bullish"
+      ? "text-emerald-400 border-emerald-500/30"
+      : indicators.macd_signal === "bearish"
+      ? "text-red-400 border-red-500/30"
+      : "text-gray-300 border-gray-500/30";
+  return (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {indicators.rsi_14 !== undefined && (
+        <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+          RSI(14): <span className="text-indigo-300 font-mono">{indicators.rsi_14}</span>
+        </span>
+      )}
+      {indicators.ma_50 !== undefined && (
+        <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+          MA(50): <span className="text-indigo-300 font-mono">{indicators.ma_50}</span>
+        </span>
+      )}
+      {indicators.ma_200 !== undefined && (
+        <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+          MA(200): <span className="text-indigo-300 font-mono">{indicators.ma_200}</span>
+        </span>
+      )}
+      {indicators.macd_signal && (
+        <span className={`px-2.5 py-1 rounded-md bg-[#1e1e3a] border text-xs uppercase font-medium ${macdColor}`}>
+          MACD: {indicators.macd_signal}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function AnalysisResultPage() {
   const params = useParams();
   const router = useRouter();
@@ -67,7 +165,7 @@ export default function AnalysisResultPage() {
   const locale = useLocale();
   const taskId = params.taskId as string;
 
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [report, setReport] = useState<ReportResponse | null>(null);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState("queued");
   const [status, setStatus] = useState<"pending" | "running" | "completed" | "failed">("pending");
@@ -80,33 +178,51 @@ export default function AnalysisResultPage() {
   const eventSourceRef = useRef<AnalysisEventSource | null>(null);
   const startTimeRef = useRef<number>(Date.now());
   const stageStartRef = useRef<number>(Date.now());
+  const fetchedReportRef = useRef(false);
 
+  // 终态时拉取完整报告（/reports/{taskId}）
+  const fetchReport = useCallback(async () => {
+    if (fetchedReportRef.current) return;
+    fetchedReportRef.current = true;
+    try {
+      const data = await getReport(taskId);
+      setReport(data);
+      // 报告 status 终态 → 归一化前端状态
+      setStatus(normalizeStatus(data.status));
+    } catch (err: any) {
+      // 拉取失败不致命: 保留 progress/status, 报告区展示错误提示
+      setError(err.message || "Failed to load report");
+      setStatus("failed");
+    }
+  }, [taskId]);
+
+  // 轮询兜底（SSE 不可用/断开时）
   const pollForResult = useCallback(async () => {
     const interval = setInterval(async () => {
       try {
-        const data = await getAnalysisResult(taskId);
-        setResult(data);
-        setProgress(data.progress);
-        setCurrentStage(data.current_stage);
-        setStatus(data.status);
-
-        if (data.status === "completed" || data.status === "failed") {
+        // 轮询用 /reports/{id} 也能拿到终态 + 报告；非终态会 400。
+        // 这里用轻量做法：直接尝试 getReport，成功即终态。
+        if (fetchedReportRef.current) {
           clearInterval(interval);
-          if (data.status === "completed") {
-            toast.success("Analysis complete!");
-          }
+          return;
         }
-      } catch (err: any) {
-        setError(err.message);
+        const data = await getReport(taskId);
+        fetchedReportRef.current = true;
+        setReport(data);
+        setStatus(normalizeStatus(data.status));
         clearInterval(interval);
+      } catch {
+        // 非终态(400)或网络问题 → 继续轮询
       }
-    }, 2000);
+    }, 3000);
+    return interval;
   }, [taskId]);
 
   useEffect(() => {
     if (!taskId) return;
 
     startTimeRef.current = Date.now();
+    fetchedReportRef.current = false;
 
     // Show timeout warning after 5 minutes
     const timeoutTimer = setTimeout(() => {
@@ -117,6 +233,15 @@ export default function AnalysisResultPage() {
 
     // Try to connect via SSE
     let es: AnalysisEventSource;
+    let fallbackInterval: ReturnType<typeof setInterval> | null = null;
+
+    const stopFallback = () => {
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+        fallbackInterval = null;
+      }
+    };
+
     try {
       es = createAnalysisEventSource(taskId);
       eventSourceRef.current = es;
@@ -124,6 +249,7 @@ export default function AnalysisResultPage() {
       es.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          // progress / current_stage 更新
           if (data.progress !== undefined) setProgress(data.progress);
           if (data.current_stage) {
             if (data.current_stage !== currentStage) {
@@ -131,9 +257,14 @@ export default function AnalysisResultPage() {
             }
             setCurrentStage(data.current_stage);
           }
-          if (data.status) setStatus(data.status);
-          if (data.report) {
-            setResult((prev) => (prev ? { ...prev, report: data.report } : null));
+          // 终态归一化 + 拉取完整报告
+          const s = normalizeStatus(data.status);
+          if (data.status) {
+            setStatus(s);
+            if (s === "completed" || s === "failed") {
+              stopFallback();
+              fetchReport();
+            }
           }
         } catch {
           // ignore parse errors
@@ -141,22 +272,28 @@ export default function AnalysisResultPage() {
       };
 
       es.onerror = () => {
-        // SSE connection closed or errored — fall back to polling
+        // SSE 连接关闭/出错 → 用轮询兜底（终态时能拿到报告）
         es.close();
-        pollForResult();
+        stopFallback();
+        pollForResult().then((interval) => {
+          fallbackInterval = interval;
+        });
       };
     } catch {
-      // SSE not available, fall back to polling
-      pollForResult();
+      // SSE 不可用 → 轮询兜底
+      pollForResult().then((interval) => {
+        fallbackInterval = interval;
+      });
     }
 
     return () => {
       clearTimeout(timeoutTimer);
+      stopFallback();
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
       }
     };
-  }, [taskId, pollForResult, status]);
+  }, [taskId, pollForResult, fetchReport, status]);
 
   // Compute estimated remaining time based on current stage
   useEffect(() => {
@@ -202,29 +339,6 @@ export default function AnalysisResultPage() {
     return () => clearInterval(timer);
   }, [currentStage, status]);
 
-  const handleRetry = async () => {
-    setRetrying(true);
-    try {
-      // Re-submit the analysis
-      const ticker = result?.report?.sections?.[0]?.title || "";
-      const result_data = await submitAnalysis({
-        ticker: ticker || "AAPL",
-        analysis_type: "comprehensive",
-      });
-      toast.success("Retrying analysis...");
-      router.push(`/analyze/${result_data.task_id}`);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to retry");
-    } finally {
-      setRetrying(false);
-    }
-  };
-
-  const handleFeedback = (type: "like" | "dislike") => {
-    setFeedback(type);
-    toast.success(type === "like" ? t("analysisResult.feedback.thanks") : t("analysisResult.feedback.improve"));
-  };
-
   const getStatusBadge = () => {
     switch (status) {
       case "completed":
@@ -238,6 +352,55 @@ export default function AnalysisResultPage() {
     }
   };
 
+  const renderMarkdown = (content?: string | null) => {
+    if (!content) return null;
+    return <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">{content}</div>;
+  };
+
+  // 报告是否可渲染（终态 + 至少一个 Agent 输出）
+  const hasReport = report && (report.leader_synthesis || report.fundamentals || report.technical || report.sentiment);
+
+  const agentCards = report
+    ? [
+        {
+          key: "fundamentals",
+          title: "Fundamental Analysis",
+          data: report.fundamentals,
+          extra: null,
+        },
+        {
+          key: "technical",
+          title: "Technical Analysis",
+          data: report.technical,
+          extra: report.technical ? <IndicatorBadges indicators={report.technical.indicators} /> : null,
+        },
+        {
+          key: "sentiment",
+          title: "Sentiment Analysis",
+          data: report.sentiment,
+          extra: report.sentiment ? (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {report.sentiment.news_score !== undefined && report.sentiment.news_score !== null && (
+                <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+                  News Score: <span className="text-indigo-300 font-mono">{report.sentiment.news_score}</span>
+                </span>
+              )}
+              {report.sentiment.reddit_mentions !== undefined && report.sentiment.reddit_mentions !== null && (
+                <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+                  Reddit Mentions: <span className="text-indigo-300 font-mono">{report.sentiment.reddit_mentions}</span>
+                </span>
+              )}
+              {report.sentiment.analyst_consensus && (
+                <span className="px-2.5 py-1 rounded-md bg-[#1e1e3a] border border-indigo-500/20 text-xs text-gray-300">
+                  Analyst Consensus: <span className="text-indigo-300">{report.sentiment.analyst_consensus}</span>
+                </span>
+              )}
+            </div>
+          ) : null,
+        },
+      ]
+    : [];
+
   return (
     <div className="min-h-[calc(100vh-8rem)] bg-[#0a0a1a]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -245,11 +408,25 @@ export default function AnalysisResultPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-2xl md:text-3xl font-bold text-white">
-              {t("analysisResult.title")}
+              {report?.ticker ? `${report.ticker} — ${t("analysisResult.title")}` : t("analysisResult.title")}
             </h1>
             {getStatusBadge()}
           </div>
           <p className="text-gray-400 text-sm font-mono">{t("analysisResult.taskId", { id: taskId })}</p>
+          {report?.completed_at && (
+            <p className="text-xs text-gray-500 mt-1">
+              {t("analysisResult.generatedOn", {
+                date: new Date(report.completed_at).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  timeZoneName: "short",
+                }),
+              })}
+            </p>
+          )}
         </div>
 
         {/* Progress */}
@@ -353,14 +530,13 @@ export default function AnalysisResultPage() {
                     {t("analysisResult.error.title")}
                   </p>
                   <p className="text-gray-400 text-sm mb-4">
-                    {result?.error || error || "An unknown error occurred."}
+                    {error || report?.error?.message || "An unknown error occurred."}
                   </p>
                   <Button
-                    onClick={handleRetry}
-                    disabled={retrying}
+                    onClick={() => router.push("/analyze")}
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
                   >
-                    {retrying ? t("analysisResult.error.retrying") : t("analysisResult.error.retry")}
+                    {t("analysisResult.actions.newAnalysis")}
                   </Button>
                 </div>
               </div>
@@ -369,26 +545,14 @@ export default function AnalysisResultPage() {
         )}
 
         {/* Report */}
-        {result?.report && (
+        {hasReport && (
           <div className="space-y-6">
-            {/* Generated on + Actions */}
+            {/* Actions */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <p className="text-xs text-gray-500">
-                {t("analysisResult.generatedOn", { date: result.report.generated_at ? new Date(result.report.generated_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      timeZoneName: "short",
-                    }) : new Date().toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      timeZoneName: "short",
-                    }) })}
+                {report?.total_elapsed_ms
+                  ? `Completed in ${(report.total_elapsed_ms / 1000).toFixed(0)}s`
+                  : ""}
               </p>
               <div className="flex items-center gap-2">
                 <button
@@ -417,237 +581,84 @@ export default function AnalysisResultPage() {
               </div>
             </div>
 
-            {/* Summary */}
-            <Card className="bg-[#12122a] border-indigo-500/10">
-              <CardHeader>
-                <CardTitle className="text-lg text-white">{t("analysisResult.summary")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-300 leading-relaxed">
-                  {result.report.summary}
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Charts Section */}
-            {(result.technicals || result.fundamentals) && (
-              <div className="space-y-6">
-                {/* Stock Price Chart */}
-                {result.technicals?.price_history && (
-                  <Card className="bg-[#12122a] border-indigo-500/10">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-white">
-                        {t("analysisResult.priceChart")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <StockPriceChart data={result.technicals.price_history} />
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Revenue & Profit Chart */}
-                {result.fundamentals?.financials && (
-                  <Card className="bg-[#12122a] border-indigo-500/10">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-white">
-                        {t("analysisResult.financialPerformance")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <RevenueChart data={result.fundamentals.financials} />
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* PE Ratio Chart */}
-                {result.fundamentals?.pe_history && (
-                  <Card className="bg-[#12122a] border-indigo-500/10">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-white">
-                        {t("analysisResult.valuation")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <PEChart
-                        data={result.fundamentals.pe_history}
-                        currentPE={result.fundamentals.current_pe}
-                        pe5yAvg={result.fundamentals.pe_5y_avg}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Technical Indicators */}
-                {(result.technicals?.rsi || result.technicals?.macd) && (
-                  <Card className="bg-[#12122a] border-indigo-500/10">
-                    <CardHeader>
-                      <CardTitle className="text-lg text-white">
-                        {t("analysisResult.technicalIndicators")}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <TechnicalChart
-                        rsi={result.technicals?.rsi}
-                        macd={result.technicals?.macd}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            )}
-
-            {/* Sections */}
-            {result.report.sections.map((section, index) => (
-              <Card key={index} className="bg-[#12122a] border-indigo-500/10">
-                <CardHeader>
-                  <CardTitle className="text-lg text-white">
-                    {section.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-                    {section.content}
-                  </div>
-                  {section.citations && section.citations.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-indigo-500/10">
-                      <p className="text-xs text-gray-500 mb-2">Citations:</p>
-                      <ul className="space-y-1">
-                        {section.citations.map((citation, ci) => (
-                          <li
-                            key={ci}
-                            className="text-xs"
-                          >
-                            <a
-                              href={citation}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2"
-                              title={citation}
-                            >
-                              {formatCitationLabel(citation)}
-                            </a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-
-            {/* Sources */}
-            {result.report.sources.length > 0 && (
+            {/* Leader Synthesis (综合结论) */}
+            {report.leader_synthesis && (
               <Card className="bg-[#12122a] border-indigo-500/10">
                 <CardHeader>
-                  <CardTitle className="text-lg text-white">{t("analysisResult.sources")}</CardTitle>
+                  <CardTitle className="text-lg text-white">Investment Summary</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {result.report.sources.map((source, index) => (
-                      <li key={index}>
-                        <a
-                          href={source.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-indigo-400 hover:text-indigo-300 text-sm underline underline-offset-2 break-all"
-                        >
-                          {source.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                <CardContent className="space-y-4">
+                  {renderMarkdown(report.leader_synthesis.content)}
+                  {(report.leader_synthesis.agreements && report.leader_synthesis.agreements.length > 0) ||
+                    (report.leader_synthesis.contradictions && report.leader_synthesis.contradictions.length > 0) ? (
+                    <>
+                      <Separator className="bg-indigo-500/10" />
+                      {report.leader_synthesis.agreements && report.leader_synthesis.agreements.length > 0 && (
+                        <div>
+                          <p className="text-sm text-gray-400 font-medium mb-2">Key Agreements</p>
+                          <ul className="space-y-1.5">
+                            {report.leader_synthesis.agreements.map((a, i) => (
+                              <li key={i} className="text-sm text-gray-300 flex gap-2">
+                                <span className="text-emerald-400 mt-0.5">✓</span>
+                                <span>{a}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {report.leader_synthesis.contradictions && report.leader_synthesis.contradictions.length > 0 && (
+                        <div>
+                          <p className="text-sm text-gray-400 font-medium mb-2">Key Contradictions</p>
+                          <ul className="space-y-1.5">
+                            {report.leader_synthesis.contradictions.map((c, i) => (
+                              <li key={i} className="text-sm text-gray-300 flex gap-2">
+                                <span className="text-amber-400 mt-0.5">⚠</span>
+                                <span>{c}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  ) : null}
                 </CardContent>
               </Card>
             )}
 
-            {/* Feedback Buttons */}
-            <Card className="bg-[#12122a] border-indigo-500/10">
-              <CardContent className="py-4">
-                <div className="flex items-center justify-center gap-4">
-                  <p className="text-gray-400 text-sm mr-2">{t("analysisResult.feedback.question")}</p>
-                  <button
-                    onClick={() => handleFeedback("like")}
-                    disabled={feedback !== null}
-                    className={`p-2 rounded-lg transition-colors ${
-                      feedback === "like"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-[#1e1e3a] text-gray-400 hover:text-emerald-400 hover:bg-emerald-500/10"
-                    } disabled:opacity-60`}
-                  >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleFeedback("dislike")}
-                    disabled={feedback !== null}
-                    className={`p-2 rounded-lg transition-colors ${
-                      feedback === "dislike"
-                        ? "bg-red-500/20 text-red-400"
-                        : "bg-[#1e1e3a] text-gray-400 hover:text-red-400 hover:bg-red-500/10"
-                    } disabled:opacity-60`}
-                  >
-                    <svg className="w-5 h-5 scale-y-[-1]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.904M14.25 9h2.25M5.904 18.75c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 01-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 10.203 4.167 9.75 5 9.75h1.053c.472 0 .745.556.5.96a8.958 8.958 0 00-1.302 4.665c0 1.194.232 2.333.654 3.375z" />
-                    </svg>
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Investment Disclaimer */}
-            <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/10">
-              <div className="flex items-start gap-3">
-                <svg
-                  className="w-5 h-5 text-amber-400 mt-0.5 shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                  />
-                </svg>
-                <div className="text-sm text-amber-300/90 leading-relaxed">
-                  <p className="font-medium mb-1">
-                    {t("analysisResult.disclaimer")}
-                  </p>
-                  <p>
-                    {t("analysisResult.disclaimerText")}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center gap-4 pt-4">
-              <Link href="/analyze">
-                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white">
-                {t("analysisResult.actions.newAnalysis")}
-                </Button>
-              </Link>
-              <Link href="/dashboard">
-                <Button
-                  variant="outline"
-                  className="border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/10"
-                >
-                {t("analysisResult.actions.backToDashboard")}
-                </Button>
-              </Link>
-            </div>
+            {/* Agent Cards */}
+            {agentCards.map(
+              (agent) =>
+                agent.data && (
+                  <Card key={agent.key} className="bg-[#12122a] border-indigo-500/10">
+                    <CardHeader>
+                      <CardTitle className="text-lg text-white">{agent.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {renderMarkdown(agent.data.content)}
+                      {agent.extra}
+                      <CitationList citations={agent.data.citations} />
+                    </CardContent>
+                  </Card>
+                )
+            )}
           </div>
         )}
 
         {/* Initial loading state */}
-        {!result && status === "pending" && (
+        {!hasReport && status === "pending" && (
           <Card className="bg-[#12122a] border-indigo-500/10">
             <CardContent className="py-12 text-center">
               <div className="animate-spin w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full mx-auto mb-4" />
               <p className="text-gray-400">{t("analysisResult.connecting")}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 终态但报告为空(非failed) → 提示 */}
+        {!hasReport && status === "completed" && (
+          <Card className="bg-[#12122a] border-indigo-500/10">
+            <CardContent className="py-8 text-center">
+              <p className="text-gray-400 text-sm">Analysis completed, but no report content is available.</p>
             </CardContent>
           </Card>
         )}

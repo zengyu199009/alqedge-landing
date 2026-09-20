@@ -35,6 +35,56 @@ export interface AnalysisResult {
   error?: string;
 }
 
+// ── 后端 /reports/{report_id} 真实报告契约 (contracts.md §四) ──
+// 终态报告由 4 个 Agent 的 Markdown 输出组成, 与旧 report.summary/sections 结构不同。
+export interface ReportCitation {
+  source: "SEC_10K" | "SEC_10Q" | "SEC_8K" | "Finnhub" | "FRED" | "Reddit";
+  url: string;
+  excerpt?: string | null;
+  section?: string | null;
+  filing_date?: string | null;
+}
+
+export interface AgentOutput {
+  content: string;
+  citations?: ReportCitation[];
+  elapsed_ms?: number;
+  model?: string;
+}
+
+export interface TechnicalIndicators {
+  rsi_14?: number;
+  ma_50?: number;
+  ma_200?: number;
+  macd_signal?: "bullish" | "bearish" | "neutral";
+}
+
+export interface ReportResponse {
+  report_id: string;
+  ticker: string;
+  status: "done" | "partial" | "failed";
+  created_at?: string | null;
+  completed_at?: string | null;
+  total_elapsed_ms?: number | null;
+  cached: boolean;
+  fundamentals: (AgentOutput & {}) | null;
+  technical: (AgentOutput & { indicators?: TechnicalIndicators }) | null;
+  sentiment:
+    | (AgentOutput & {
+        news_score?: number | null;
+        reddit_mentions?: number | null;
+        analyst_consensus?: string | null;
+      })
+    | null;
+  leader_synthesis:
+    | (AgentOutput & {
+        agreements?: string[];
+        contradictions?: string[];
+      })
+    | null;
+  error?: { code?: number; message?: string; retryable?: boolean } | null;
+}
+
 export interface AnalysisSection {
   title: string;
   content: string;
@@ -100,6 +150,24 @@ export async function submitAnalysis(
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Unknown error" }));
+    throw new Error(toUserFriendlyError(err.detail || `HTTP ${res.status}`));
+  }
+
+  return res.json();
+}
+
+/**
+ * Get full terminal report from /reports/{report_id} (backend real contract).
+ * 终态 (done/partial/failed) 返回 4 个 Agent 的完整 Markdown 输出。
+ */
+export async function getReport(taskId: string): Promise<ReportResponse> {
+  const authHeaders = await getAuthHeaders();
+  const res = await fetch(`${API_URL}/reports/${taskId}`, {
+    headers: { ...authHeaders },
   });
 
   if (!res.ok) {
