@@ -179,13 +179,26 @@ export default function AnalysisResultPage() {
   const startTimeRef = useRef<number>(Date.now());
   const stageStartRef = useRef<number>(Date.now());
   const fetchedReportRef = useRef(false);
+  // 报告真实 ID。SSE 的 result_url(/reports/{report_id}) 是权威来源；
+  // 若 task_id ≠ report_id，用 result_url 的 report_id 拉取，避免拉错/404。
+  const reportIdRef = useRef<string>(taskId);
 
-  // 终态时拉取完整报告（/reports/{taskId}）
+  // 从后端 result_url 提取 report_id（形如 /api/v1/reports/{id}）
+  const resolveReportId = useCallback(
+    (resultUrl?: string) => {
+      if (!resultUrl) return;
+      const m = resultUrl.match(/\/reports\/([^/?]+)/);
+      if (m && m[1]) reportIdRef.current = m[1];
+    },
+    []
+  );
+
+  // 终态时拉取完整报告（/reports/{report_id}）
   const fetchReport = useCallback(async () => {
     if (fetchedReportRef.current) return;
     fetchedReportRef.current = true;
     try {
-      const data = await getReport(taskId);
+      const data = await getReport(reportIdRef.current || taskId);
       setReport(data);
       // 报告 status 终态 → 归一化前端状态
       setStatus(normalizeStatus(data.status));
@@ -206,7 +219,7 @@ export default function AnalysisResultPage() {
           clearInterval(interval);
           return;
         }
-        const data = await getReport(taskId);
+        const data = await getReport(reportIdRef.current || taskId);
         fetchedReportRef.current = true;
         setReport(data);
         setStatus(normalizeStatus(data.status));
@@ -223,6 +236,7 @@ export default function AnalysisResultPage() {
 
     startTimeRef.current = Date.now();
     fetchedReportRef.current = false;
+    reportIdRef.current = taskId;
 
     // Show timeout warning after 5 minutes
     const timeoutTimer = setTimeout(() => {
@@ -257,6 +271,8 @@ export default function AnalysisResultPage() {
             }
             setCurrentStage(data.current_stage);
           }
+          // 记录后端权威 report_id（result_url 优先，兼容 task_id ≠ report_id）
+          resolveReportId(data.result_url);
           // 终态归一化 + 拉取完整报告
           const s = normalizeStatus(data.status);
           if (data.status) {
@@ -293,7 +309,7 @@ export default function AnalysisResultPage() {
         eventSourceRef.current.close();
       }
     };
-  }, [taskId, pollForResult, fetchReport, status]);
+  }, [taskId, pollForResult, fetchReport, status, resolveReportId]);
 
   // Compute estimated remaining time based on current stage
   useEffect(() => {
