@@ -53,8 +53,23 @@ export async function middleware(request: NextRequest) {
     return intlResponse;
   }
 
+  // opennext/Cloudflare 不把 next-intl middleware 写在 rewrite request 上的
+  // X-NEXT-INTL-LOCALE 头透传到 server handler，导致 getRequestConfig 的
+  // requestLocale 为空、中文回退英文。
+  // 这里把 locale 写到响应头上，opennext 的 applyMiddlewareHeaders 会把它
+  // 转成 x-middleware-response- 前缀透传给 server，再由 server 还原成
+  // x-next-intl-locale 请求头，从而让 getRequestLocale 读到正确 locale。
+  const localeMatch = pathname.match(/^\/(en|zh)(?:\/|$)/);
+  const locale = localeMatch ? localeMatch[1] : defaultLocale;
+
+  const setLocaleHeader = (res: NextResponse) => {
+    res.headers.set("x-next-intl-locale", locale);
+    return res;
+  };
+
   // Handle Supabase auth session on the (possibly rewritten) path
   const supabaseResponse = await updateSession(request);
+  setLocaleHeader(supabaseResponse);
 
   // Skip GeoIP for legal and explain pages to avoid redirect loops
   const pathWithoutLocale = pathname.replace(/^\/(en|zh)/, "");
