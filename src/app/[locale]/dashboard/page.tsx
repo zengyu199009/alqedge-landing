@@ -10,9 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 
 interface AnalysisHistoryItem {
-  task_id: string;
+  report_id: string;
   ticker: string;
-  analysis_type: string;
   status: string;
   created_at: string;
 }
@@ -59,18 +58,50 @@ export default function DashboardPage() {
       }
     };
     fetchPlan();
+
+    // Fetch analysis history list from backend /reports (page 1, limit 100)
+    const fetchHistory = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+        const res = await fetch(`${API_URL}/reports?page=1&limit=100`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+        if (!res.ok) {
+          // 接口失败时保持空历史（不崩溃）
+          console.error("fetchHistory failed", res.status);
+          return;
+        }
+        const data = await res.json();
+        const items: AnalysisHistoryItem[] = (data.items || []).map((item: any) => ({
+          report_id: item.report_id,
+          ticker: item.ticker,
+          status: item.status,
+          created_at: item.created_at,
+        }));
+        setHistory(items);
+      } catch (e) {
+        console.error("fetchHistory error", e);
+      }
+    };
+    fetchHistory();
   }, [router, locale]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "done":
       case "completed":
         return <Badge className="bg-emerald-600">{t("dashboard.badges.completed")}</Badge>;
       case "running":
         return <Badge className="bg-blue-600">{t("dashboard.badges.inProgress")}</Badge>;
+      case "queued":
       case "pending":
         return <Badge className="bg-amber-600">{t("dashboard.badges.pending")}</Badge>;
       case "failed":
         return <Badge className="bg-red-600">{t("dashboard.badges.failed")}</Badge>;
+      case "partial":
+        return <Badge className="bg-amber-600">{t("dashboard.badges.pending")}</Badge>;
       default:
         return <Badge className="bg-gray-600">{status}</Badge>;
     }
@@ -233,15 +264,12 @@ export default function DashboardPage() {
           ) : (
             <div className="space-y-3">
               {history.map((item) => (
-                <Link key={item.task_id} href={`/${locale}/analyze/${item.task_id}`}>
+                <Link key={item.report_id} href={`/${locale}/analyze/${item.report_id}`}>
                   <Card className="bg-[#12122a] border-indigo-500/10 hover:border-indigo-500/30 transition-colors cursor-pointer">
                     <CardContent className="flex items-center justify-between py-4">
                       <div>
                         <p className="text-white font-semibold">
                           {item.ticker.toUpperCase()}
-                        </p>
-                        <p className="text-sm text-gray-500 capitalize">
-                          {item.analysis_type} analysis
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
