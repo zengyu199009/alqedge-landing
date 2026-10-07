@@ -69,3 +69,156 @@
     box-shadow: 0 12px 40px rgba(79, 70, 229, 0.2);
   }
 }
+
+/* ─── Blog article body (SEO posts) ─── */
+.blog-body {
+  color: #c7c9d4;
+  font-size: 17px;
+  line-height: 1.85;
+}
+.blog-body h2 {
+  color: #fff;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 2.2em 0 0.8em;
+  letter-spacing: -0.02em;
+}
+.blog-body h3 {
+  color: #e2e5ff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 1.8em 0 0.6em;
+}
+.blog-body p {
+  margin-bottom: 1.2em;
+}
+.blog-body strong {
+  color: #fff;
+  font-weight: 700;
+}
+.blog-body a {
+  color: #a5b4fc;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s;
+}
+.blog-body a:hover {
+  color: #c7d2fe;
+}
+.blog-body ul,
+.blog-body ol {
+  margin: 0 0 1.4em 1.4em;
+}
+.blog-body li {
+  margin-bottom: 0.6em;
+}
+.blog-body table {
+  width: 100%;
+  margin: 1.6em 0;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.blog-body th {
+  background: rgba(79, 70, 229, 0.15);
+  color: #fff;
+  text-align: left;
+  font-weight: 700;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.blog-body td {
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #c7c9d4;
+}
+.blog-body tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+.blog-body .card {
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 1.8em 0;
+}
+.blog-body .card h2,
+.blog-body .card h3 {
+  margin-top: 0;
+}
+.blog-body .cta {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.2), rgba(124, 58, 237, 0.15));
+  border: 1px solid rgba(79, 70, 229, 0.35);
+  border-radius: 18px;
+  padding: 30px;
+  margin: 2em 0;
+  text-align: center;
+}
+.blog-body .cta h3 {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 0.6em;
+}
+.blog-body .cta p {
+  color: #b9bccb;
+  margin-bottom: 1.4em;
+}
+.blog-body .btn {
+  display: inline-block;
+  padding: 13px 26px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  margin: 6px 8px 6px 0;
+  transition: transform 0.15s, background 0.2s;
+}
+.blog-body .btn:hover {
+  transform: translateY(-2px);
+}
+.blog-body .btn-primary {
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  color: #fff;
+}
+.blog-body .btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.blog-body .faq {
+  margin: 2em 0;
+}
+.blog-body .faq h3 {
+  color: #fff;
+  font-weight: 700;
+}
+.blog-body .disclaimer {
+  font-size: 13px;
+  color: #8a8d9c;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 16px;
+  margin-top: 2em;
+}
+.blog-body .sources {
+  margin-top: 2em;
+  padding-top: 1.2em;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.blog-body .sources h2 {
+  font-size: 20px;
+}
+.blog-body .sources li {
+  font-size: 15px;
+}
+.blog-body .authorline {
+  color: #9aa0b5;
+  font-size: 15px;
+  margin-bottom: 0.4em;
+}
+.blog-body .meta {
+  color: #8a8d9c;
+  font-size: 14px;
+  margin-bottom: 1.6em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}

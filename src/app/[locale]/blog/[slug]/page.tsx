@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
 import { locales } from "@/navigation";
 
@@ -8,6 +9,72 @@ import { locales } from "@/navigation";
 export function generateStaticParams() {
   return getAllPosts().flatMap((post) =>
     locales.map((locale) => ({ locale, slug: post.slug }))
+  );
+}
+
+// 每篇文章独立 SEO：标题含关键词 + canonical + OG
+// 覆盖根 layout 的全局默认 metadata
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+  const post = getPostBySlug(slug);
+  if (!post) return {};
+  const canonical = `https://alqedge.com/${locale}/blog/${post.slug}`;
+  return {
+    title: `${post.title} — AlphaSync Blog`,
+    description: post.excerpt,
+    alternates: { canonical },
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      type: "article",
+      url: canonical,
+      siteName: "AlphaSync",
+    },
+  };
+}
+
+// 渲染单个内容块：兼容旧格式（string，## 开头=H2）与新格式（{type,text|html}）
+function renderBlock(block: string | { type: string; text?: string; html?: string }, i: number) {
+  if (typeof block === "string") {
+    if (block.startsWith("## ")) {
+      return (
+        <h2 key={i} className="text-2xl font-bold text-white mt-10 mb-4">
+          {block.slice(3)}
+        </h2>
+      );
+    }
+    return (
+      <p key={i} className="text-gray-300 leading-relaxed text-lg mb-6">
+        {block}
+      </p>
+    );
+  }
+  // 新格式
+  if (block.type === "h2") {
+    return (
+      <div key={i} className="blog-body">
+        <h2>{block.text}</h2>
+      </div>
+    );
+  }
+  if (block.type === "h3") {
+    return (
+      <div key={i} className="blog-body">
+        <h3>{block.text}</h3>
+      </div>
+    );
+  }
+  // html 块：dangerouslySetInnerHTML 渲染（稿件为静态可信内容）
+  return (
+    <div
+      key={i}
+      className="blog-body"
+      dangerouslySetInnerHTML={{ __html: block.html || "" }}
+    />
   );
 }
 
@@ -23,8 +90,27 @@ export default async function BlogPostPage({
     notFound();
   }
 
+  const canonical = `https://alqedge.com/${locale}/blog/${post.slug}`;
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    datePublished: post.date,
+    dateModified: post.date,
+    author: { "@type": "Organization", name: "AlphaSync" },
+    publisher: { "@type": "Organization", name: "AlphaSync", url: "https://alqedge.com/" },
+    url: canonical,
+    mainEntityOfPage: canonical,
+    description: post.excerpt,
+  };
+
   return (
     <main className="min-h-screen bg-[#0a0a1a]">
+      {/* JSON-LD schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       {/* Header */}
       <div className="border-b border-indigo-500/10 bg-gradient-to-b from-[#0f0f2e] to-[#0a0a1a]">
         <div className="max-w-3xl mx-auto px-6 py-14 md:py-16">
@@ -50,27 +136,8 @@ export default async function BlogPostPage({
 
       {/* Article body */}
       <article className="max-w-3xl mx-auto px-6 py-10">
-        <div className="prose prose-invert prose-indigo max-w-none">
-          {post.content.map((block, i) => {
-            if (block.startsWith("## ")) {
-              return (
-                <h2
-                  key={i}
-                  className="text-2xl font-bold text-white mt-10 mb-4"
-                >
-                  {block.slice(3)}
-                </h2>
-              );
-            }
-            return (
-              <p
-                key={i}
-                className="text-gray-300 leading-relaxed text-lg mb-6"
-              >
-                {block}
-              </p>
-            );
-          })}
+        <div className="max-w-none">
+          {post.content.map((block, i) => renderBlock(block, i))}
         </div>
 
         {/* Footer CTA */}
