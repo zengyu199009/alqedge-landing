@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy · AlphaSync",
+  description:
+    "AlphaSync privacy policy — what data we collect, cookies, third-party sharing, refunds, and how to contact us.",
+};
 
 function TocItem({ href, label }: { href: string; label: string }) {
   return (

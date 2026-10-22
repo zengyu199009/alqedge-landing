@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service · AlphaSync",
+  description:
+    "AlphaSync terms of service — use of the service, refunds, limitations of liability, and contact information.",
+};
 
 function TocItem({ href, label }: { href: string; label: string }) {
   return (
