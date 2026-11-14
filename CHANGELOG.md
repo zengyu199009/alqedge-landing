@@ -1,3 +1,10 @@
+### 2026-11-14 — Next.js 安全升级 15.5.28→15.5.29（宇哥拍板 A，11 月安全公告 1High+6Medium 修复版）
+
+- **升级**：package.json `"next": "15.5.29"`（精确版本，去 ^ 浮动）+ lock 同步。
+- **流程**：`npx opennextjs-cloudflare build --dangerouslyUseUnsupportedNextVersion`（Duplicate key 警告为已知内部警告，非致命）→ `wrangler deploy` → 新版本 `2632e482`（2026-11-14T01:22:22Z UTC）。
+- **线上验证**：alqedge.com/www 最终 200、/zh/ 200、blog 详情 3 篇（SSG）200 + title 正确、blog 列表 200、/en|zh/pricing 200。
+- **攻击面**：已核实不成立（use cache/Server Actions/next-image 全 0），升级为供应链卫生。
+
 # Changelog
 
 本文件记录 alqedge-landing 的重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。
